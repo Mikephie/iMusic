@@ -1,0 +1,70 @@
+body { font-family: Arial, sans-serif; padding: 20px; }
+#uploadForm { 
+    display: flex; flex-direction: column; max-width: 450px; gap: 10px; 
+    border: 1px solid #007bff; padding: 25px; border-radius: 8px; 
+}
+.file-input { padding: 10px; border: 1px dashed #007bff; border-radius: 4px; }
+.metadata-section { padding: 15px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9; }
+input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; margin-top: 5px; }
+button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 15px; transition: background-color 0.2s; }
+#submitBtn, #submitCoverBtn { background-color: #007bff; color: white; }
+#submitBtn:disabled, #submitCoverBtn:disabled { background-color: #aaa; }
+#linkOutput { margin-top: 10px; padding: 10px; border: 1px solid #00aaff; border-radius: 4px; background-color: #e6f7ff; display: none; }
+#linkOutput a { word-break: break-all; color: #007bff; margin-right: 10px; }
+#copyLinkBtn { background-color: #28a745; color: white; padding: 5px 10px; margin-top: 0; }
+#message { margin-top: 20px; white-space: pre-wrap; background-color: #e6f7ff; padding: 15px; border-radius: 4px; border-left: 5px solid #007bff; }
+#assetListDisplay { border-left: 5px solid #ffc107; background-color: #fffbe6; padding: 15px; border: 1px solid #ddd; border-radius: 6px; }
+
+/* 列表样式 (新) */
+.asset-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+.asset-item:hover {
+    background-color: #f0f8ff;
+}
+.asset-item:last-child {
+    border-bottom: none;
+}
+.asset-cover {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-right: 15px;
+    border-radius: 4px;
+}
+.asset-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+.asset-title {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.asset-type-label {
+    font-size: 0.8em;
+    color: #666;
+}
+.asset-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 10px;
+}
+.asset-actions button {
+    padding: 4px 8px;
+    margin-top: 0;
+    font-size: 0.9em;
+}
+.play-btn {
+    background-color: #ff9800;
+    color: white;
+}
+.hidden-audio {
+    display: none; 
+}

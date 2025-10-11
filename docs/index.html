@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>MyMusic 资产上传</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script> 
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <h1>MyMusic 资产上传</h1>
+    
+    <form id="uploadForm">
+        <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
+        <input type="file" id="musicFile" accept="audio/*" class="file-input" required>
+        
+        <label for="coverFile">选择封面图片 (可选，**需单独上传**)</label>
+        <input type="file" id="coverFile" accept="image/*" class="file-input">
+        
+        <div id="metadataDisplay" class="metadata-section" style="display: none;">
+            <strong>读取到的元数据：</strong>
+            <label for="titleInput">歌曲名 (Title):</label>
+            <input type="text" id="titleInput" placeholder="自动读取或手动输入">
+            
+            <label for="artistInput">艺术家 (Artist):</label>
+            <input type="text" id="artistInput" placeholder="自动读取或手动输入">
+            
+            <label for="albumInput">专辑 (Album):</label>
+            <input type="text" id="albumInput" placeholder="自动读取或手动输入">
+        </div>
+        
+        <button type="submit" id="submitBtn">开始上传音乐文件</button>
+        <button type="button" id="submitCoverBtn" disabled>上传封面文件</button>
+    </form>
+    
+    <div id="linkOutput" style="margin-top: 10px; display: none;">
+        <strong>播放链接:</strong>
+        <a id="musicLink" href="#" target="_blank"></a>
+        <button id="copyLinkBtn">复制链接</button>
+    </div>
+    
+    <pre id="message"></pre>
+
+    <button type="button" id="listAssetsBtn">显示所有已上传文件</button>
+    <div id="assetListDisplay" style="margin-top: 15px; border: 1px solid #ddd; display: none;"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
