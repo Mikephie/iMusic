@@ -1,5 +1,4 @@
-// app.js
-/* 干净单列布局版 + 列表新增「复制封面链接」按钮（复制当前行封面实际 src） */
+// app.js —— 列表含「复制封面链接」按钮的完整版本
 const WORKER_URL = 'https://music-gateway.mikephiemy.workers.dev';
 const PUBLIC_BASE_URL = 'https://music.mikephie.site';
 
@@ -33,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reset) messageDisplay.textContent = '';
     messageDisplay.textContent += (messageDisplay.textContent ? '\n' : '') + txt;
   };
-
   const copyToClipboard = async text => {
     try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
   };
@@ -49,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const openLightbox = src => { lightboxImg.src = src; lightbox.classList.add('show'); lightbox.setAttribute('aria-hidden','false'); };
   const closeLightbox = () => { lightbox.classList.remove('show'); lightbox.setAttribute('aria-hidden','true'); lightboxImg.src = ''; };
-
   coverPreview.addEventListener('click', () => openLightbox(coverPreview.src));
   lightbox.addEventListener('click', closeLightbox);
 
@@ -117,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 搜索封面
-  document.getElementById('searchCoverBtn').addEventListener('click', async () => {
+  searchCoverBtn.addEventListener('click', async () => {
     const term = (coverUrlInput.value || `${artistInput.value} ${albumInput.value}`).trim();
     if (!term) { alert('请输入关键词或 艺术家 + 专辑名'); return; }
     showMsg(`正在搜索封面：${term}...`, true);
@@ -165,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       copyLinkButton.onclick = async () => {
         const ok = await copyToClipboard(publicUrl);
         copyLinkButton.textContent = ok ? '已复制!' : '复制失败';
-        setTimeout(() => (copyLinkButton.textContent = '复制链接'), 1000);
+        setTimeout(() => (copyLinkButton.textContent = '复制链接'), 900);
       };
 
       // 2) 后台上传封面（若填写）
@@ -244,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       assetListDisplay.innerHTML = html;
 
-      // 绑定按钮/封面放大
+      // 绑定每个条目的按钮/封面放大
       data.assets.forEach((asset, i) => {
         const row = document.getElementById(`asset-${i}`);
         const delBtn = document.getElementById(`del-${i}`);
@@ -254,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (delBtn) delBtn.onclick = () => deleteAsset(asset.name, row);
         if (copyBtn) copyBtn.onclick = () => navigator.clipboard.writeText(asset.url);
+
+        // 复制封面链接 = 复制当前行封面 <img> 的实际 src
         if (copyCoverBtn) copyCoverBtn.onclick = () => {
           const url = coverImg?.src || '';
           if (!url) return;
@@ -261,7 +260,11 @@ document.addEventListener('DOMContentLoaded', () => {
           copyCoverBtn.textContent = '已复制';
           setTimeout(() => (copyCoverBtn.textContent = '复制封面链接'), 900);
         };
-        if (coverImg) coverImg.addEventListener('click', () => openLightbox(coverImg.src));
+
+        if (coverImg) coverImg.addEventListener('click', () => {
+          lightboxImg.src = coverImg.src;
+          lightbox.classList.add('show');
+        });
 
         const playBtn = document.getElementById(`play-${i}`);
         const audio = document.getElementById(`audio-${i}`);
