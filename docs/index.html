@@ -11,52 +11,61 @@
 <body>
   <h1>MyMusic 资产上传</h1>
 
-  <form id="uploadForm" class="card">
-    <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
-    <input
-      type="file"
-      id="musicFile"
-      class="file-input"
-      required
-      accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"
-    />
+  <!-- 新增：页面网格容器。桌面端会变成双列 -->
+  <main class="page">
+    <!-- 左列：上传区 -->
+    <section class="col form-col">
+      <form id="uploadForm" class="card">
+        <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
+        <input
+          type="file"
+          id="musicFile"
+          class="file-input"
+          required
+          accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"
+        />
 
-    <label for="coverUrlInput">封面图片 URL (可选)</label>
-    <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />
-    <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>
+        <label for="coverUrlInput">封面图片 URL (可选)</label>
+        <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />
+        <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>
 
-    <!-- 封面预览 -->
-    <div id="coverPreviewContainer" class="hidden">
-      <div class="preview-title">封面预览</div>
-      <img id="coverPreview" src="" alt="封面预览" class="preview-img" />
-    </div>
+        <!-- 封面预览 -->
+        <div id="coverPreviewContainer" class="hidden">
+          <div class="preview-title">封面预览</div>
+          <img id="coverPreview" src="" alt="封面预览" class="preview-img" />
+        </div>
 
-    <div id="metadataDisplay" class="hidden">
-      <strong>读取到的元数据：</strong>
-      <label for="titleInput">歌曲名 (Title):</label>
-      <input type="text" id="titleInput" placeholder="自动读取或手动输入" />
+        <div id="metadataDisplay" class="hidden">
+          <strong>读取到的元数据：</strong>
+          <label for="titleInput">歌曲名 (Title):</label>
+          <input type="text" id="titleInput" placeholder="自动读取或手动输入" />
 
-      <label for="artistInput">艺术家 (Artist):</label>
-      <input type="text" id="artistInput" placeholder="自动读取或手动输入" />
+          <label for="artistInput">艺术家 (Artist):</label>
+          <input type="text" id="artistInput" placeholder="自动读取或手动输入" />
 
-      <label for="albumInput">专辑 (Album):</label>
-      <input type="text" id="albumInput" placeholder="自动读取或手动输入" />
-    </div>
+          <label for="albumInput">专辑 (Album):</label>
+          <input type="text" id="albumInput" placeholder="自动读取或手动输入" />
+        </div>
 
-    <button type="submit" id="submitBtn" class="btn-accent">开始上传音乐文件</button>
-    <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>
-  </form>
+        <button type="submit" id="submitBtn" class="btn-accent">开始上传音乐文件</button>
+        <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>
+      </form>
 
-  <div id="linkOutput" class="card hidden">
-    <strong>播放链接:</strong>
-    <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>
-    <button id="copyLinkBtn" class="btn-success">复制链接</button>
-  </div>
+      <div id="linkOutput" class="card hidden">
+        <strong>播放链接:</strong>
+        <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>
+        <button id="copyLinkBtn" class="btn-success">复制链接</button>
+      </div>
 
-  <pre id="message" class="card"></pre>
+      <pre id="message" class="card"></pre>
+    </section>
 
-  <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>
-  <div id="assetListDisplay" class="card hidden"></div>
+    <!-- 右列：文件列表 -->
+    <section class="col list-col">
+      <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>
+      <div id="assetListDisplay" class="card hidden"></div>
+    </section>
+  </main>
 
   <!-- Lightbox：隐藏时不拦截点击 -->
   <div id="lightbox" class="lightbox" aria-hidden="true">
