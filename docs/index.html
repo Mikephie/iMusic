@@ -11,10 +11,11 @@
     
     <form id="uploadForm">
         <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
-        <input type="file" id="musicFile" accept="audio/*, .mp3, .flac, .wav" class="file-input" required>
+        <input type="file" id="musicFile" accept="audio/*" class="file-input" required>
         
-        <label for="coverFile">选择封面图片 (可选，**需单独上传**)</label>
-        <input type="file" id="coverFile" accept="image/*" class="file-input">
+        <label for="coverUrlInput">封面图片 URL (可选)</label>
+        <input type="text" id="coverUrlInput" placeholder="在此粘贴图片 URL">
+        <button type="button" id="searchCoverBtn" style="background-color: #3f51b5; color: white;">自动搜索并粘贴封面 URL</button>
         
         <div id="metadataDisplay" class="metadata-section" style="display: none;">
             <strong>读取到的元数据：</strong>
@@ -29,7 +30,7 @@
         </div>
         
         <button type="submit" id="submitBtn">开始上传音乐文件</button>
-        <button type="button" id="submitCoverBtn" disabled>上传封面文件</button>
+        <button type="button" id="submitCoverBtn" disabled style="display: none;">上传封面文件</button>
     </form>
     
     <div id="linkOutput" style="margin-top: 10px; display: none;">
