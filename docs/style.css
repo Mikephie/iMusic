@@ -1,4 +1,4 @@
-/* style.css - 完整修改版 (间隔压缩 + 配色优化) */
+/* style.css - 完整修改版 (间隔压缩 + 互补配色) */
 
 /* ===== Reset & Base ===== */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -12,26 +12,31 @@ body {
 }
 
 :root{
-  /* --- 配色优化 --- */
-  --bg:#0A0B0E; /* 更深的背景，增加对比度 */
-  --fg:#f2f4f8; /* 文本更亮 */
-  --muted:#99A0AD; /* 柔和的灰色 */
-  --card:#14161B; /* 卡片背景略亮于主背景 */
-  --border:#272A30; /* 更清晰的边框/分隔线 */
-  --shadow:0 3px 8px rgba(0,0,0,.3); /* 调整阴影深度 */
-  --primary:#747fff; /* 柔和且科技感的主色 (Primary) */
-  --primary-rgb: 116, 127, 255;
-  --accent:#3bb4ff; /* 略微调整的强调色 (Accent) */
-  --danger:#ff6b6b;
-  --success:#48d197;
-  --radius:12px; /* 统一圆角 */
+  /* --- 互补配色优化 (蓝 vs 橙) --- */
+  --bg:#0E0E12; /* 深邃的近黑色背景 */
+  --fg:#f0f2f5; /* 文本颜色 */
+  --muted:#9A9FB0; /* 柔和的灰色 */
+  --card:#1A1B20; /* 卡片背景略亮于主背景 */
+  --border:#30323A; /* 柔和的边框 */
+  --shadow:0 3px 8px rgba(0,0,0,.3); 
+  
+  --primary:#6B7BE5; /* 主色: 深邃的科技蓝/紫 */
+  --primary-rgb: 107, 123, 229;
+  
+  --accent:#FF9848; /* 强调色/互补色: 温暖的琥珀橙 */
+  --accent-rgb: 255, 152, 72;
+  
+  --danger:#F55C60; /* 危险色 */
+  --success:#5CD1A9; /* 成功色 */
+  --radius:10px; /* 统一圆角 */
 }
 @media (prefers-color-scheme: light){
   :root{
     --bg:#f8f9fb; --fg:#141518; --muted:#6b7280;
     --card:#ffffff; --border:#e6e8ee; --shadow:0 1px 3px rgba(0,0,0,.08);
     --primary:#3f51b5; --primary-rgb: 63, 81, 181;
-    --accent:#1976d2; --danger:#dc3545; --success:#28a745;
+    --accent:#ff9800; --accent-rgb: 255, 152, 0;
+    --danger:#dc3545; --success:#28a745;
   }
 }
 
@@ -40,7 +45,7 @@ body {
 /* ===== Heading (间隔压缩) ===== */
 h1{
   text-align:center;
-  margin: 14px 0 12px; /* 顶部间隔压缩 */
+  margin: 14px 0 12px; 
   font-size: clamp(1.4rem, 1.1rem + 1vw, 2.2rem);
   font-weight: 800;
 }
@@ -48,9 +53,9 @@ h1{
 /* ===== Single-column container (间隔压缩) ===== */
 .container{
   width: min(900px, 92vw);
-  margin: 0 auto 30px; /* 底部间隔压缩 */
+  margin: 0 auto 30px; 
   display: grid;
-  gap: 14px; /* 卡片间距压缩 */
+  gap: 14px; 
 }
 
 /* ===== Card (Optimization) ===== */
@@ -59,17 +64,17 @@ h1{
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: 0 4px 10px rgba(0,0,0,.15), var(--shadow);
-  padding: 16px; /* 内部填充压缩 */
+  padding: 16px; 
 }
 
 /* ===== Form (间隔压缩) ===== */
 label{
-  display:block; margin:8px 0 5px; /* 标签间隔压缩 */
+  display:block; margin:8px 0 5px; 
   font-weight:600; color:var(--fg);
   font-size:.95rem;
 }
 input[type="file"], input[type="text"]{
-  width:100%; padding:10px 14px; border-radius:10px; /* 输入框高度略微压缩，圆角略减 */
+  width:100%; padding:10px 14px; border-radius:10px; 
   border:1px solid var(--border); 
   background:rgba(255,255,255,0.04); 
   color:var(--fg);
@@ -77,11 +82,11 @@ input[type="file"], input[type="text"]{
 }
 input[type="file"]:focus, input[type="text"]:focus{
   border-color: var(--primary); 
-  background: rgba(var(--primary-rgb),.1); 
+  background: rgba(var(--primary-rgb),.1); /* 聚焦背景使用主色 */
 }
 
 button{
-  padding:11px 16px; border:none; border-radius:10px; /* 按钮高度略微压缩，圆角略减 */
+  padding:11px 16px; border:none; border-radius:10px; 
   font-weight:700;
   cursor:pointer; transition: transform .1s ease, filter .15s ease, background .15s;
 }
@@ -91,29 +96,36 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   background: var(--primary); 
   color:#fff; 
   width:100%; 
-  box-shadow: 0 3px 8px rgba(var(--primary-rgb),.3); /* 阴影压缩 */
-  margin-top: 12px; /* 按钮与上方输入框的间距压缩 */
+  box-shadow: 0 3px 8px rgba(var(--primary-rgb),.3); 
+  margin-top: 12px; 
 }
 .btn-primary:hover { filter: brightness(1.1); }
-.btn-accent{  background: var(--accent);  color:#fff; width:100%; margin-top: 16px; /* 按钮间距压缩 */ }
-.btn-success{ background: var(--success); color:#fff; border-radius:999px; padding:7px 10px; }
+/* 重点按钮（开始上传）使用强调色 */
+.btn-accent{ 
+  background: var(--accent);  
+  color:#1A1B20; /* 强调色按钮使用深色文本 */
+  width:100%; 
+  margin-top: 16px; 
+  box-shadow: 0 3px 8px rgba(var(--accent-rgb),.3);
+}
+.btn-success{ background: var(--success); color:#1A1B20; border-radius:999px; padding:7px 10px; }
 .btn-secondary{
   display:block; width:100%;
   padding:11px 16px; border-radius:10px;
-  background:#474d5a; /* 次要按钮颜色调整 */
+  background:#474d5a; 
   color:#fff; font-weight:700; text-align:center;
 }
 
-/* ===== Preview & Metadata Layout (间隔压缩 + 布局调整) ===== */
+/* ===== Preview & Metadata Layout (间隔压缩) ===== */
 .cover-metadata-flex-wrapper {
   display: flex;
-  gap: 15px; /* 间距压缩 */
+  gap: 15px; 
   align-items: flex-start;
-  margin-top: 12px; /* 与上一个输入框的间距压缩 */
+  margin-top: 12px; 
 }
 
 .preview-box {
-  flex-shrink: 0;
+  flex-shrink: 0; 
 }
 
 .metadata-fields {
@@ -122,7 +134,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 .metadata-header {
   font-weight: bold;
-  margin-bottom: 8px; /* 标题间隔压缩 */
+  margin-bottom: 8px; 
   border-bottom: 1px dashed var(--border);
   padding-bottom: 4px;
   color: var(--muted);
@@ -132,11 +144,11 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 .preview-title{ 
   font-size:.9rem; 
   color:var(--muted); 
-  margin:0 0 6px; /* 标题间隔压缩 */
+  margin:0 0 6px; 
   font-weight: 600; 
 }
 .preview-img{
-  width:120px; /* 移动端/默认尺寸压缩 */
+  width:120px; 
   height:120px; 
   border-radius:10px; 
   object-fit:cover;
@@ -146,27 +158,27 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   cursor:zoom-in;
 }
 
-/* 移动端适配：取消封面与元数据的并排布局 */
+/* 移动端适配 */
 @media (max-width: 600px) {
   .cover-metadata-flex-wrapper {
     flex-direction: column;
-    gap: 12px; /* 移动端堆叠后的间距压缩 */
+    gap: 12px; 
   }
   .preview-box {
     align-self: center; 
   }
   .preview-img{
-    width:140px; /* 移动端堆叠后可以适当放大一点 */
+    width:140px; 
     height:140px; 
   }
 }
 
 
-/* ===== Output blocks (间隔压缩 + 配色调整) ===== */
+/* ===== Output blocks (互补配色) ===== */
 .feedback-block {
-  padding: 10px 14px; /* 填充压缩 */
+  padding: 10px 14px; 
   border-radius: 10px;
-  font-size: .95rem; /* 字体略微缩小 */
+  font-size: .95rem; 
   margin-top: 0px; 
   display: flex;
   align-items: center;
@@ -176,40 +188,40 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 .feedback-success {
-  background: rgba(72, 209, 151, 0.15); /* 使用新配色成功色 */
+  background: rgba(92, 209, 169, 0.15); /* 新成功色 */
   color: var(--success);
   font-weight: 600;
 }
 
 .feedback-error {
-  background: rgba(255, 107, 107, 0.15); /* 使用新配色失败色 */
+  background: rgba(245, 92, 96, 0.15); /* 新危险色 */
   color: var(--danger);
   font-weight: 600;
 }
 
-/* 原有的linkOutput和message保留 */
-#linkOutput{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding: 10px 14px; /* 间距压缩 */ }
+/* 链接颜色使用互补色(橙色) */
+#linkOutput{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding: 10px 14px; }
 #musicLink{ color: var(--accent); text-decoration: none; word-break: break-all; font-size: .95rem; }
 
 
 /* ===== File list (间隔压缩) ===== */
 #assetListDisplay{ padding: 0; overflow:hidden; }
 .asset-header{
-  padding:8px 14px; border-bottom:1px solid var(--border); color:var(--muted); font-size:.9rem; /* 头部压缩 */
+  padding:8px 14px; border-bottom:1px solid var(--border); color:var(--muted); font-size:.9rem; 
 }
 .asset-item{
   display:grid;
-  grid-template-columns: 56px 1fr auto; /* 封面略小 */
+  grid-template-columns: 56px 1fr auto; 
   align-items:center;
-  gap:12px; /* 间距压缩 */
-  padding:10px 14px; /* 内部填充压缩 */
+  gap:12px; 
+  padding:10px 14px; 
   border-bottom:1px solid var(--border);
 }
 .asset-item:last-child{ border-bottom:none; }
 .asset-cover{
   width:56px; 
   height:56px; 
-  border-radius:8px; /* 圆角压缩 */
+  border-radius:8px; 
   object-fit:cover; cursor:zoom-in;
   border: 1px solid var(--border);
 }
@@ -221,9 +233,9 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 .asset-actions{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
 .asset-actions .btn{ padding:6px 10px; border-radius:999px; color:#fff; font-weight:700; font-size: .85rem; }
-.asset-actions .play-btn{ background: var(--accent); color:#fff; }
-.asset-actions .copy-btn{ background: var(--success); color:#fff; }
-.asset-actions .cover-btn{ background: #8e62ff; color:#fff; }
+.asset-actions .play-btn{ background: var(--accent); color:var(--card); } /* 播放按钮使用强调色，文本用深色 */
+.asset-actions .copy-btn{ background: var(--success); color:var(--card); }
+.asset-actions .cover-btn{ background: var(--primary); color:#fff; } /* 封面操作使用主色 */
 .asset-actions .del-btn{ background: var(--danger); color:#fff; }
 
 @media (max-width: 520px){
