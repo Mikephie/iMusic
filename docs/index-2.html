@@ -1,49 +1,70 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>MyMusic 资产上传</title>
-    <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script> 
-    <link rel="stylesheet" href="style.css"> 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>MyMusic 资产上传</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>MyMusic 资产上传</h1>
-    
-    <form id="uploadForm">
-        <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
-        <input type="file" id="musicFile" accept="audio/*" class="file-input" required>
-        
-        <label for="coverUrlInput">封面图片 URL (可选)</label>
-        <input type="text" id="coverUrlInput" placeholder="在此粘贴图片 URL">
-        <button type="button" id="searchCoverBtn" style="background-color: #3f51b5; color: white;">自动搜索并粘贴封面 URL</button>
-        
-        <div id="metadataDisplay" class="metadata-section" style="display: none;">
-            <strong>读取到的元数据：</strong>
-            <label for="titleInput">歌曲名 (Title):</label>
-            <input type="text" id="titleInput" placeholder="自动读取或手动输入">
-            
-            <label for="artistInput">艺术家 (Artist):</label>
-            <input type="text" id="artistInput" placeholder="自动读取或手动输入">
-            
-            <label for="albumInput">专辑 (Album):</label>
-            <input type="text" id="albumInput" placeholder="自动读取或手动输入">
-        </div>
-        
-        <button type="submit" id="submitBtn">开始上传音乐文件</button>
-        <button type="button" id="submitCoverBtn" disabled style="display: none;">上传封面文件</button>
+  <h1>MyMusic 资产上传</h1>
+
+  <main class="container">
+    <form id="uploadForm" class="card">
+      <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
+      <input
+        type="file"
+        id="musicFile"
+        class="file-input"
+        required
+        accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"
+      />
+
+      <label for="coverUrlInput">封面图片 URL (可选)</label>
+      <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />
+      <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>
+
+      <!-- 封面预览 -->
+      <div id="coverPreviewContainer" class="hidden">
+        <div class="preview-title">封面预览</div>
+        <img id="coverPreview" src="" alt="封面预览" class="preview-img" />
+      </div>
+
+      <div id="metadataDisplay" class="hidden">
+        <strong>读取到的元数据：</strong>
+        <label for="titleInput">歌曲名 (Title):</label>
+        <input type="text" id="titleInput" placeholder="自动读取或手动输入" />
+
+        <label for="artistInput">艺术家 (Artist):</label>
+        <input type="text" id="artistInput" placeholder="自动读取或手动输入" />
+
+        <label for="albumInput">专辑 (Album):</label>
+        <input type="text" id="albumInput" placeholder="自动读取或手动输入" />
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn-accent">开始上传音乐文件</button>
+      <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>
     </form>
-    
-    <div id="linkOutput" style="margin-top: 10px; display: none;">
-        <strong>播放链接:</strong>
-        <a id="musicLink" href="#" target="_blank"></a>
-        <button id="copyLinkBtn">复制链接</button>
+
+    <div id="linkOutput" class="card hidden">
+      <strong>播放链接:</strong>
+      <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>
+      <button id="copyLinkBtn" class="btn-success">复制链接</button>
     </div>
-    
-    <pre id="message"></pre>
 
-    <button type="button" id="listAssetsBtn">显示所有已上传文件</button>
-    <div id="assetListDisplay" style="margin-top: 15px; border: 1px solid #ddd; display: none;"></div>
+    <pre id="message" class="card"></pre>
 
-    <script src="app.js"></script>
+    <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>
+    <div id="assetListDisplay" class="card hidden"></div>
+  </main>
+
+  <!-- Lightbox：隐藏时不拦截点击 -->
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <img id="lightboxImg" src="" alt="封面大图" />
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
