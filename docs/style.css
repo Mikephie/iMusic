@@ -3,12 +3,38 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+  --bg: #f7f8fa;
+  --fg: #333;
+  --card: #fff;
+  --muted: #666;
+  --border: #ddd;
+  --primary: #3f51b5;
+  --accent: #1976d2;
+  --success: #43a047;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --fg: #e0e0e0;
+    --card: #1e1e1e;
+    --muted: #9aa0a6;
+    --border: #333;
+    --primary: #5c6bc0;
+    --accent: #2196f3;
+    --success: #388e3c;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
   margin: 0;
   padding: 0;
-  background: #f7f8fa;
-  color: #333;
+  background: var(--bg);
+  color: var(--fg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,24 +46,24 @@ h1 {
   margin: 25px 0 15px;
   font-size: 1.6rem;
   font-weight: 700;
-  color: #111;
   text-align: center;
 }
 
 form {
-  background: #fff;
+  background: var(--card);
   padding: 18px 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow);
   width: 90%;
   max-width: 500px;
+  border: 1px solid var(--border);
 }
 
 label {
   display: block;
   font-size: 0.95rem;
-  font-weight: 500;
-  margin: 10px 0 5px;
+  font-weight: 600;
+  margin: 10px 0 6px;
 }
 
 input[type="file"],
@@ -46,14 +72,18 @@ input[type="text"] {
   padding: 10px 12px;
   font-size: 1rem;
   border: 1px solid #ccc;
+  border-color: var(--border);
+  background: transparent;
+  color: var(--fg);
   border-radius: 8px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 
 input[type="file"]:focus,
 input[type="text"]:focus {
-  border-color: #3f51b5;
+  border-color: var(--primary);
+  background: rgba(127, 127, 127, 0.05);
 }
 
 button {
@@ -61,11 +91,11 @@ button {
   padding: 12px 0;
   margin-top: 10px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+  transition: transform 0.15s ease, filter 0.15s ease, background 0.2s;
 }
 
 button:active {
@@ -77,104 +107,71 @@ button:disabled {
   cursor: not-allowed;
 }
 
-#searchCoverBtn {
-  background-color: #3f51b5;
-  color: #fff;
-}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-accent  { background: var(--accent);  color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-secondary { background: #555; color: #fff; }
 
-#submitBtn {
-  background-color: #1976d2;
-  color: #fff;
-}
-
-#copyLinkBtn {
-  background-color: #43a047;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 6px;
-  margin-left: 8px;
-}
-
-#message {
-  background: #fafafa;
-  width: 90%;
-  max-width: 500px;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-top: 15px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-#linkOutput {
-  margin-top: 15px;
-  text-align: center;
-  word-wrap: break-word;
-}
-
-#musicLink {
-  display: block;
-  margin: 6px 0;
-  color: #1976d2;
-  text-decoration: none;
-  word-break: break-all;
-}
-
-#listAssetsBtn {
-  background: #555;
-  color: white;
-  width: 90%;
-  max-width: 500px;
-  padding: 12px 0;
-  margin: 20px 0;
-  border-radius: 8px;
-}
-
-#assetListDisplay {
-  width: 90%;
-  max-width: 500px;
-  background: #fffefc;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  margin-bottom: 40px;
-}
-
+/* 预览与消息 */
+.hidden { display: none; }
+.preview-wrap { text-align: center; margin-top: 10px; }
 .preview-img {
   width: 120px;
   height: 120px;
   border-radius: 8px;
   object-fit: cover;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  cursor: pointer;
+  cursor: zoom-in;
 }
 
-/* Lightbox 弹出层 */
-.lightbox {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+#linkOutput {
+  margin-top: 15px;
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
 }
-.lightbox img {
-  max-width: 90%;
-  max-height: 90%;
+
+#musicLink {
+  display: block;
+  margin: 6px 0;
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+#message {
+  background: rgba(127,127,127,0.06);
+  width: 90%;
+  max-width: 500px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  margin-top: 15px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-/* 文件条目样式 */
+/* 列表 */
+#assetListDisplay.list-panel {
+  width: 90%;
+  max-width: 500px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
 .asset-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
+
+.asset-item:last-child { border-bottom: none; }
 
 .asset-cover {
   width: 60px;
@@ -182,55 +179,57 @@ button:disabled {
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
-  cursor: pointer;
+  cursor: zoom-in;
 }
 
-.asset-info {
-  flex: 1;
-  min-width: 0;
-}
-
+.asset-info { flex: 1; min-width: 0; }
 .asset-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
-  color: #111;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
-.asset-type-label {
-  font-size: 0.85rem;
-  color: #666;
-}
+.asset-type-label { font-size: 0.85rem; color: var(--muted); }
 
 .asset-actions {
   display: flex;
   flex-direction: row;
   gap: 6px;
 }
+.asset-actions button {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
 
-/* 移动端适配 */
+/* 移动端 */
 @media (max-width: 600px) {
   h1 { font-size: 1.4rem; }
   .asset-cover { width: 50px; height: 50px; }
   button { font-size: 0.95rem; }
-
-  .asset-actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: flex-end;
-  }
+  .asset-actions { flex-wrap: wrap; justify-content: flex-end; }
 }
 
-/* 深色模式 */
-@media (prefers-color-scheme: dark) {
-  body { background: #121212; color: #e0e0e0; }
-  form, #assetListDisplay { background: #1e1e1e; color: #fff; border: 1px solid #333; }
-  input, #message { background: #2a2a2a; color: #fff; border-color: #444; }
-  button { background-color: #333; color: #fff; }
-  #copyLinkBtn { background-color: #388e3c; }
-  #searchCoverBtn { background-color: #5c6bc0; }
-  #submitBtn { background-color: #2196f3; }
+/* Lightbox：隐藏时不拦截点击 */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;   /* 关键：隐藏时不挡点击 */
+  transition: opacity 0.2s ease;
+  z-index: 9999;
+}
+.lightbox.show {
+  opacity: 1;
+  pointer-events: auto;   /* 显示时才接管点击 */
+}
+.lightbox img {
+  max-width: 92vw;
+  max-height: 92vh;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
