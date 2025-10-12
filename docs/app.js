@@ -1,192 +1,293 @@
-// === app.js ===
-// 功能：上传音频、读取元数据、封面搜索与实时预览、Lightbox 放大封面、文件列表管理
+/* app.js —— 完整增强版（修复遮罩层点击、统一事件绑定、移动端&深色模式、封面实时预览、JPG→PNG回退） */
 
 const WORKER_URL = 'https://music-gateway.mikephiemy.workers.dev';
 const PUBLIC_BASE_URL = 'https://music.mikephie.site';
 
-// 获取元素
-const form = document.getElementById('uploadForm');
-const musicFileInput = document.getElementById('musicFile');
-const coverUrlInput = document.getElementById('coverUrlInput');
-const searchCoverBtn = document.getElementById('searchCoverBtn');
-const submitBtn = document.getElementById('submitBtn');
-const messageDisplay = document.getElementById('message');
-const metadataDisplay = document.getElementById('metadataDisplay');
-const titleInput = document.getElementById('titleInput');
-const artistInput = document.getElementById('artistInput');
-const albumInput = document.getElementById('albumInput');
-const linkOutputDiv = document.getElementById('linkOutput');
-const musicLinkAnchor = document.getElementById('musicLink');
-const copyLinkButton = document.getElementById('copyLinkBtn');
-const listAssetsBtn = document.getElementById('listAssetsBtn');
-const assetListDisplay = document.getElementById('assetListDisplay');
+document.addEventListener('DOMContentLoaded', () => {
+  // 元素
+  const form = document.getElementById('uploadForm');
+  const musicFileInput = document.getElementById('musicFile');
+  const coverUrlInput = document.getElementById('coverUrlInput');
+  const searchCoverBtn = document.getElementById('searchCoverBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const messageDisplay = document.getElementById('message');
+  const metadataDisplay = document.getElementById('metadataDisplay');
+  const titleInput = document.getElementById('titleInput');
+  const artistInput = document.getElementById('artistInput');
+  const albumInput = document.getElementById('albumInput');
+  const linkOutputDiv = document.getElementById('linkOutput');
+  const musicLinkAnchor = document.getElementById('musicLink');
+  const copyLinkButton = document.getElementById('copyLinkBtn');
+  const listAssetsBtn = document.getElementById('listAssetsBtn');
+  const assetListDisplay = document.getElementById('assetListDisplay');
 
-// Lightbox 元素
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightboxImg');
+  // 预览 & Lightbox
+  const coverPreviewContainer = document.getElementById('coverPreviewContainer');
+  const coverPreview = document.getElementById('coverPreview');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
 
-// 封面预览
-const coverPreviewContainer = document.getElementById('coverPreviewContainer');
-const coverPreview = document.getElementById('coverPreview');
+  // 工具
+  const sanitizeName = s => (s || '').replace(/[^a-zA-Z0-9\s\u4e00-\u9fa5.\-_]/g, '').trim();
 
-function updateCoverPreview(url) {
-  if (!url || !url.startsWith('http')) {
-    coverPreviewContainer.style.display = 'none';
-    return;
+  const showMsg = (txt, append = true) => {
+    if (!append) messageDisplay.textContent = '';
+    messageDisplay.textContent += (messageDisplay.textContent ? '\n' : '') + txt;
+  };
+
+  const copyToClipboard = async text => {
+    try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
+  };
+
+  function updateCoverPreview(url) {
+    if (!url || !/^https?:\/\//i.test(url)) {
+      coverPreviewContainer.classList.add('hidden');
+      return;
+    }
+    coverPreview.src = url;
+    coverPreviewContainer.classList.remove('hidden');
   }
-  coverPreview.src = url;
-  coverPreviewContainer.style.display = 'block';
-}
 
-coverUrlInput.addEventListener('input', e => updateCoverPreview(e.target.value.trim()));
+  // Lightbox 显示/隐藏
+  const openLightbox = src => { lightboxImg.src = src; lightbox.classList.add('show'); lightbox.setAttribute('aria-hidden', 'false'); };
+  const closeLightbox = () => { lightbox.classList.remove('show'); lightbox.setAttribute('aria-hidden', 'true'); lightboxImg.src = ''; };
 
-// 点击封面放大
-function enableLightbox(imgElement) {
-  imgElement.addEventListener('click', () => {
-    lightboxImg.src = imgElement.src;
-    lightbox.style.display = 'flex';
+  coverPreview.addEventListener('click', () => openLightbox(coverPreview.src));
+  lightbox.addEventListener('click', closeLightbox);
+
+  // 监听输入框，实时预览
+  coverUrlInput.addEventListener('input', e => updateCoverPreview(e.target.value.trim()));
+
+  // 读取音乐元数据
+  musicFileInput.addEventListener('change', () => {
+    const file = musicFileInput.files?.[0];
+    if (!file) return;
+
+    metadataDisplay.classList.remove('hidden');
+    titleInput.value = '正在读取...';
+    artistInput.value = '';
+    albumInput.value = '';
+
+    if (typeof jsmediatags === 'undefined') {
+      titleInput.value = '无法读取元数据，请手动输入。';
+      return;
+    }
+
+    jsmediatags.read(file, {
+      onSuccess: tag => {
+        titleInput.value = tag.tags.title || file.name || '';
+        artistInput.value = tag.tags.artist || '';
+        albumInput.value = tag.tags.album || '';
+      },
+      onError: () => {
+        titleInput.value = file.name || '';
+        artistInput.value = '';
+        albumInput.value = '(读取失败)';
+      }
+    });
   });
-}
-coverPreview.addEventListener('click', () => {
-  lightboxImg.src = coverPreview.src;
-  lightbox.style.display = 'flex';
-});
-lightbox.addEventListener('click', () => (lightbox.style.display = 'none'));
 
-// 读取音乐标签
-musicFileInput.addEventListener('change', () => {
-  const file = musicFileInput.files?.[0];
-  if (!file) return;
+  // 上传（文件/URL）
+  async function uploadFile(file, customKey, isCover = false, sourceUrl = null) {
+    const fd = new FormData();
+    if (sourceUrl) {
+      fd.append('source_url', sourceUrl);
+      if (customKey) fd.append('key', customKey);
+    } else if (file) {
+      fd.append('file', file);
+    }
 
-  metadataDisplay.style.display = 'block';
-  titleInput.value = '正在读取...';
+    if (!isCover && file) {
+      fd.append('title', titleInput.value);
+      fd.append('artist', artistInput.value);
+      fd.append('album', albumInput.value);
+    }
 
-  jsmediatags.read(file, {
-    onSuccess: tag => {
-      titleInput.value = tag.tags.title || file.name;
-      artistInput.value = tag.tags.artist || '';
-      albumInput.value = tag.tags.album || '';
-    },
-    onError: () => {
-      titleInput.value = file.name;
+    const res = await fetch(WORKER_URL, { method: 'POST', body: fd });
+    const json = await res.json();
+    return { response: res, result: json };
+  }
+
+  // iTunes 免鉴权封面搜索
+  async function fetchItunesCover(term, size = 1200, country = 'sg') {
+    if (!term) return null;
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=album&country=${country}&limit=1`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const hit = data.results?.[0];
+    if (!hit?.artworkUrl100) return null;
+    return hit.artworkUrl100.replace(/\/\d+x\d+bb\./, `/${size}x${size}bb.`);
+  }
+
+  // 搜索封面
+  searchCoverBtn.addEventListener('click', async () => {
+    const term = (coverUrlInput.value || `${artistInput.value} ${albumInput.value}`).trim();
+    if (!term) { alert('请输入关键词或艺术家 + 专辑名'); return; }
+    showMsg(`正在搜索封面：${term}...`, false);
+    try {
+      const url = await fetchItunesCover(term);
+      if (url) {
+        coverUrlInput.value = url;
+        updateCoverPreview(url);
+        showMsg('✅ 已找到封面：' + url);
+      } else {
+        showMsg('❌ 未找到匹配封面');
+      }
+    } catch (e) {
+      showMsg('❌ 搜索失败：' + (e.message || e));
     }
   });
-});
 
-// 上传函数
-async function uploadFile(file, customKey, isCover = false, sourceUrl = null) {
-  const fd = new FormData();
-  if (sourceUrl) {
-    fd.append('source_url', sourceUrl);
-    if (customKey) fd.append('key', customKey);
-  } else if (file) fd.append('file', file);
+  // 提交上传
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    showMsg('开始上传音乐文件...', false);
+    linkOutputDiv.classList.add('hidden');
+    submitBtn.disabled = true;
 
-  if (!isCover && file) {
-    fd.append('title', titleInput.value);
-    fd.append('artist', artistInput.value);
-    fd.append('album', albumInput.value);
-  }
+    const musicFile = musicFileInput.files?.[0];
+    const coverUrl = (coverUrlInput.value || '').trim();
 
-  const res = await fetch(WORKER_URL, { method: 'POST', body: fd });
-  return { response: res, result: await res.json() };
-}
-
-// iTunes 封面搜索
-async function fetchItunesCover(term) {
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=album&country=sg&limit=1`;
-  const res = await fetch(url);
-  const data = await res.json();
-  const hit = data.results?.[0];
-  return hit?.artworkUrl100 ? hit.artworkUrl100.replace(/\/\d+x\d+bb\./, '/1200x1200bb.') : null;
-}
-
-// 点击搜索封面
-searchCoverBtn.onclick = async () => {
-  const term = coverUrlInput.value.trim() || `${artistInput.value} ${albumInput.value}`.trim();
-  if (!term) return alert('请输入关键词或艺术家 + 专辑名');
-  messageDisplay.textContent = `正在搜索封面：${term}...`;
-  const url = await fetchItunesCover(term);
-  if (url) {
-    coverUrlInput.value = url;
-    updateCoverPreview(url);
-    messageDisplay.textContent += `\n✅ 已找到封面`;
-  } else messageDisplay.textContent += `\n❌ 未找到封面`;
-};
-
-// 提交上传
-form.addEventListener('submit', async e => {
-  e.preventDefault();
-  submitBtn.disabled = true;
-  messageDisplay.textContent = '正在上传音乐文件...';
-  linkOutputDiv.style.display = 'none';
-
-  const musicFile = musicFileInput.files?.[0];
-  const coverUrl = coverUrlInput.value.trim();
-  if (!musicFile) {
-    messageDisplay.textContent = '请选择音乐文件';
-    submitBtn.disabled = false;
-    return;
-  }
-
-  try {
-    const { response: r1, result: res1 } = await uploadFile(musicFile);
-    if (!r1.ok) throw new Error(res1.error);
-    const publicUrl = `${PUBLIC_BASE_URL}/${res1.keyUsed}`;
-    musicLinkAnchor.href = publicUrl;
-    musicLinkAnchor.textContent = publicUrl;
-    linkOutputDiv.style.display = 'block';
-
-    copyLinkButton.onclick = async () => {
-      await navigator.clipboard.writeText(publicUrl);
-      copyLinkButton.textContent = '已复制!';
-      setTimeout(() => (copyLinkButton.textContent = '复制链接'), 1000);
-    };
-
-    if (coverUrl) {
-      const name = albumInput.value || titleInput.value || 'cover';
-      const ext = coverUrl.toLowerCase().includes('.png') ? '.PNG' : '.JPG';
-      const key = `covers/${name}${ext}`;
-      const { response: r2 } = await uploadFile(null, key, true, coverUrl);
-      if (r2.ok) messageDisplay.textContent += '\n封面上传成功';
-      else messageDisplay.textContent += '\n封面上传失败';
+    if (!musicFile) {
+      showMsg('错误：请选择一个音乐文件。');
+      submitBtn.disabled = false;
+      return;
     }
-  } catch (err) {
-    messageDisplay.textContent += `\n错误：${err.message}`;
-  } finally {
-    submitBtn.disabled = false;
+
+    try {
+      // 1) 音频上传
+      const { response: r1, result: res1 } = await uploadFile(musicFile, null, false, null);
+      if (!r1.ok) throw new Error(res1.error || '音乐文件上传失败');
+      showMsg(`音乐文件上传成功！路径：${res1.keyUsed}`);
+
+      const musicKey = res1.keyUsed;
+      const publicUrl = `${PUBLIC_BASE_URL}/${musicKey}`;
+      musicLinkAnchor.href = publicUrl;
+      musicLinkAnchor.textContent = publicUrl;
+      linkOutputDiv.classList.remove('hidden');
+
+      copyLinkButton.onclick = async () => {
+        const ok = await copyToClipboard(publicUrl);
+        copyLinkButton.textContent = ok ? '已复制!' : '复制失败';
+        setTimeout(() => (copyLinkButton.textContent = '复制链接'), 1000);
+      };
+
+      // 2) 封面后传（可选）
+      if (coverUrl) {
+        showMsg('开始后台下载并上传封面...');
+        const albumName = sanitizeName(albumInput.value);
+        const artistName = sanitizeName(artistInput.value);
+        const titleName = sanitizeName(titleInput.value);
+        const baseName = albumName || (artistName ? `${artistName}-${titleName || 'cover'}` : `cover_${Date.now()}`);
+
+        const lower = coverUrl.toLowerCase();
+        const ext = /\.png(\?|$)/.test(lower) ? '.PNG'
+                  : /\.jpe?g(\?|$)/.test(lower) ? '.JPG'
+                  : '.JPG';
+        const coverKey = `covers/${baseName}${ext}`;
+
+        const { response: r2, result: res2 } = await uploadFile(null, coverKey, true, coverUrl);
+        if (r2.ok) showMsg(`封面上传成功：${res2.keyUsed}`);
+        else showMsg(`封面上传失败：${res2.error || '未知错误'}`);
+      }
+    } catch (err) {
+      showMsg('上传出错：' + (err.message || err));
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // 加载文件列表
+  async function fetchAndDisplayAssets() {
+    assetListDisplay.textContent = '正在加载资产列表...';
+    assetListDisplay.classList.remove('hidden');
+
+    try {
+      const res = await fetch(`${WORKER_URL}?action=list`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || '加载失败');
+
+      let html = `
+        <div style="padding:10px 15px; background:rgba(127,127,127,0.05); border-bottom:1px solid var(--border);">
+          <b>总数:</b> ${data.count} &nbsp; <small>(更新于: ${new Date(data.updatedAt).toLocaleTimeString()})</small>
+        </div>
+      `;
+
+      data.assets.forEach((asset, i) => {
+        const isAudio = asset.type === 'audio';
+        const album = sanitizeName(asset.metadata?.album || '');
+        const base = `${PUBLIC_BASE_URL}/covers/${encodeURIComponent(album)}`;
+        const jpg = album ? `${base}.JPG` : '';
+        const png = album ? `${base}.PNG` : '';
+        const metaCover = asset.metadata?.coverUrl || '';
+
+        const broken = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E";
+
+        html += `
+          <div class="asset-item" id="asset-${i}">
+            <img class="asset-cover" id="asset-cover-${i}" src="${jpg || metaCover || asset.url}"
+                 onerror="this.onerror=null; this.src='${png || metaCover || broken}'" />
+            <div class="asset-info">
+              <div class="asset-title">${asset.name}</div>
+              <div class="asset-type-label">${asset.metadata?.artist || '未知艺术家'} | ${asset.metadata?.album || '未知专辑'}</div>
+            </div>
+            <div class="asset-actions">
+              ${isAudio ? `<button id="play-${i}">播放</button>
+                           <audio id="audio-${i}" src="${asset.url}" preload="none"></audio>` : ''}
+              <button id="copy-${i}">复制链接</button>
+              <button id="del-${i}" style="background:#dc3545;color:#fff;">删除</button>
+            </div>
+          </div>
+        `;
+      });
+
+      assetListDisplay.innerHTML = html;
+
+      // 绑定每个条目的按钮/封面放大
+      data.assets.forEach((asset, i) => {
+        const delBtn = document.getElementById(`del-${i}`);
+        const copyBtn = document.getElementById(`copy-${i}`);
+        const coverImg = document.getElementById(`asset-cover-${i}`);
+        if (delBtn) delBtn.onclick = async () => {
+          if (!confirm(`确定要删除文件:\n${asset.name}\n\n该操作不可撤销！`)) return;
+          const r = await fetch(`${WORKER_URL}?key=${encodeURIComponent(asset.name)}`, { method: 'DELETE' });
+          const j = await r.json();
+          if (r.ok && j.ok) document.getElementById(`asset-${i}`).remove();
+          else alert('删除失败：' + (j.error || '未知错误'));
+        };
+        if (copyBtn) copyBtn.onclick = () => navigator.clipboard.writeText(asset.url);
+
+        if (coverImg) coverImg.addEventListener('click', () => {
+          openLightbox(coverImg.src);
+        });
+
+        const playBtn = document.getElementById(`play-${i}`);
+        const audio = document.getElementById(`audio-${i}`);
+        if (playBtn && audio) {
+          playBtn.onclick = () => {
+            if (audio.paused) {
+              document.querySelectorAll('audio').forEach(a => {
+                if (a !== audio) {
+                  a.pause();
+                  const other = document.getElementById(`play-${a.id.split('-')[1]}`);
+                  if (other) other.textContent = '播放';
+                }
+              });
+              audio.play();
+              playBtn.textContent = '⏸ 暂停';
+            } else {
+              audio.pause();
+              playBtn.textContent = '播放';
+            }
+          };
+          audio.onended = () => (playBtn.textContent = '播放');
+        }
+      });
+    } catch (err) {
+      assetListDisplay.textContent = '加载失败：' + (err.message || err);
+    }
   }
+
+  listAssetsBtn.addEventListener('click', fetchAndDisplayAssets);
 });
-
-// 文件列表展示
-async function fetchAndDisplayAssets() {
-  assetListDisplay.innerHTML = '加载中...';
-  assetListDisplay.style.display = 'block';
-
-  const res = await fetch(`${WORKER_URL}?action=list`);
-  const data = await res.json();
-  if (!res.ok) return (assetListDisplay.textContent = '加载失败');
-
-  assetListDisplay.innerHTML = data.assets
-    .map((a, i) => {
-      const album = a.metadata?.album || '';
-      const coverJPG = `${PUBLIC_BASE_URL}/covers/${album}.JPG`;
-      const coverPNG = `${PUBLIC_BASE_URL}/covers/${album}.PNG`;
-      return `
-      <div class="asset-item">
-        <img src="${coverJPG}" onerror="this.src='${coverPNG}'" class="asset-cover" data-full="${coverJPG}">
-        <div class="asset-info">
-          <div class="asset-title">${a.name}</div>
-          <div class="asset-type-label">${a.metadata?.artist || '未知'} | ${album || '未知专辑'}</div>
-        </div>
-        <div class="asset-actions">
-          <button onclick="navigator.clipboard.writeText('${a.url}')">复制链接</button>
-          <button style="background:#dc3545;color:#fff;" onclick="fetch('${WORKER_URL}?key=${a.name}',{method:'DELETE'}).then(()=>this.closest('.asset-item').remove())">删除</button>
-        </div>
-      </div>`;
-    })
-    .join('');
-
-  // 封面点击放大
-  document.querySelectorAll('.asset-cover').forEach(img => {
-    img.addEventListener('click', () => {
-      lightboxImg.src = img
