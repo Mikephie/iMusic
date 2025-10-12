@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -10,20 +11,27 @@
 <body>
   <h1>MyMusic 资产上传</h1>
 
-  <form id="uploadForm">
+  <form id="uploadForm" class="card">
     <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
-    <input type="file" id="musicFile" accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*" class="file-input" required />
+    <input
+      type="file"
+      id="musicFile"
+      class="file-input"
+      required
+      accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"
+    />
 
     <label for="coverUrlInput">封面图片 URL (可选)</label>
     <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />
     <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>
 
     <!-- 封面预览 -->
-    <div id="coverPreviewContainer" class="preview-wrap hidden">
+    <div id="coverPreviewContainer" class="hidden">
+      <div class="preview-title">封面预览</div>
       <img id="coverPreview" src="" alt="封面预览" class="preview-img" />
     </div>
 
-    <div id="metadataDisplay" class="metadata-section hidden">
+    <div id="metadataDisplay" class="hidden">
       <strong>读取到的元数据：</strong>
       <label for="titleInput">歌曲名 (Title):</label>
       <input type="text" id="titleInput" placeholder="自动读取或手动输入" />
@@ -39,18 +47,18 @@
     <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>
   </form>
 
-  <div id="linkOutput" class="hidden">
+  <div id="linkOutput" class="card hidden">
     <strong>播放链接:</strong>
     <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>
     <button id="copyLinkBtn" class="btn-success">复制链接</button>
   </div>
 
-  <pre id="message"></pre>
+  <pre id="message" class="card"></pre>
 
   <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>
-  <div id="assetListDisplay" class="hidden list-panel"></div>
+  <div id="assetListDisplay" class="card hidden"></div>
 
-  <!-- Lightbox：默认不显示，且不拦截点击 -->
+  <!-- Lightbox：隐藏时不拦截点击 -->
   <div id="lightbox" class="lightbox" aria-hidden="true">
     <img id="lightboxImg" src="" alt="封面大图" />
   </div>
