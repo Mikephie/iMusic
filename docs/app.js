@@ -1,5 +1,5 @@
 // app.js
-/* 完整增强版：移动/桌面自适配、深色模式、封面实时预览+Lightbox、iTunes 搜索、上传/列表/播放/复制/删除、JPG→PNG 回退 */
+/* 保持功能不变：移动/桌面自适配、深色模式、封面实时预览+Lightbox、iTunes 搜索、上传/列表/播放/复制/删除、JPG→PNG 回退 */
 const WORKER_URL = 'https://music-gateway.mikephiemy.workers.dev';
 const PUBLIC_BASE_URL = 'https://music.mikephie.site';
 
@@ -249,7 +249,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const coverImg = document.getElementById(`asset-cover-${i}`);
         if (delBtn) delBtn.onclick = () => deleteAsset(asset.name, document.getElementById(`asset-${i}`));
         if (copyBtn) copyBtn.onclick = () => navigator.clipboard.writeText(asset.url);
-        if (coverImg) coverImg.addEventListener('click', () => openLightbox(coverImg.src));
+        if (coverImg) coverImg.addEventListener('click', () => {
+          lightboxImg.src = coverImg.src;
+          lightbox.classList.add('show');
+        });
 
         const playBtn = document.getElementById(`play-${i}`);
         const audio = document.getElementById(`audio-${i}`);
