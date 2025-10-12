@@ -1,5 +1,5 @@
-/* app.js —— 完整增强版（修复遮罩层点击、统一事件绑定、移动端&深色模式、封面实时预览、JPG→PNG回退） */
-
+// app.js
+/* 完整增强版：移动/桌面自适配、深色模式、封面实时预览+Lightbox、iTunes 搜索、上传/列表/播放/复制/删除、JPG→PNG 回退 */
 const WORKER_URL = 'https://music-gateway.mikephiemy.workers.dev';
 const PUBLIC_BASE_URL = 'https://music.mikephie.site';
 
@@ -27,14 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
 
-  // 工具
+  // 小工具
   const sanitizeName = s => (s || '').replace(/[^a-zA-Z0-9\s\u4e00-\u9fa5.\-_]/g, '').trim();
-
-  const showMsg = (txt, append = true) => {
-    if (!append) messageDisplay.textContent = '';
+  const showMsg = (txt, reset = false) => {
+    if (reset) messageDisplay.textContent = '';
     messageDisplay.textContent += (messageDisplay.textContent ? '\n' : '') + txt;
   };
-
   const copyToClipboard = async text => {
     try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
   };
@@ -48,14 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
     coverPreviewContainer.classList.remove('hidden');
   }
 
-  // Lightbox 显示/隐藏
-  const openLightbox = src => { lightboxImg.src = src; lightbox.classList.add('show'); lightbox.setAttribute('aria-hidden', 'false'); };
-  const closeLightbox = () => { lightbox.classList.remove('show'); lightbox.setAttribute('aria-hidden', 'true'); lightboxImg.src = ''; };
+  const openLightbox = src => { lightboxImg.src = src; lightbox.classList.add('show'); lightbox.setAttribute('aria-hidden','false'); };
+  const closeLightbox = () => { lightbox.classList.remove('show'); lightbox.setAttribute('aria-hidden','true'); lightboxImg.src = ''; };
 
   coverPreview.addEventListener('click', () => openLightbox(coverPreview.src));
   lightbox.addEventListener('click', closeLightbox);
 
-  // 监听输入框，实时预览
+  // 输入框联动预览
   coverUrlInput.addEventListener('input', e => updateCoverPreview(e.target.value.trim()));
 
   // 读取音乐元数据
@@ -96,13 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (file) {
       fd.append('file', file);
     }
-
     if (!isCover && file) {
       fd.append('title', titleInput.value);
       fd.append('artist', artistInput.value);
       fd.append('album', albumInput.value);
     }
-
     const res = await fetch(WORKER_URL, { method: 'POST', body: fd });
     const json = await res.json();
     return { response: res, result: json };
@@ -123,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // 搜索封面
   searchCoverBtn.addEventListener('click', async () => {
     const term = (coverUrlInput.value || `${artistInput.value} ${albumInput.value}`).trim();
-    if (!term) { alert('请输入关键词或艺术家 + 专辑名'); return; }
-    showMsg(`正在搜索封面：${term}...`, false);
+    if (!term) { alert('请输入关键词或 艺术家 + 专辑名'); return; }
+    showMsg(`正在搜索封面：${term}...`, true);
     try {
       const url = await fetchItunesCover(term);
       if (url) {
@@ -142,13 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 提交上传
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    showMsg('开始上传音乐文件...', false);
+    showMsg('开始上传音乐文件...', true);
     linkOutputDiv.classList.add('hidden');
     submitBtn.disabled = true;
 
     const musicFile = musicFileInput.files?.[0];
     const coverUrl = (coverUrlInput.value || '').trim();
-
     if (!musicFile) {
       showMsg('错误：请选择一个音乐文件。');
       submitBtn.disabled = false;
@@ -156,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      // 1) 音频上传
+      // 1) 上传音频
       const { response: r1, result: res1 } = await uploadFile(musicFile, null, false, null);
       if (!r1.ok) throw new Error(res1.error || '音乐文件上传失败');
       showMsg(`音乐文件上传成功！路径：${res1.keyUsed}`);
@@ -173,20 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => (copyLinkButton.textContent = '复制链接'), 1000);
       };
 
-      // 2) 封面后传（可选）
+      // 2) 后台上传封面（若填写）
       if (coverUrl) {
         showMsg('开始后台下载并上传封面...');
         const albumName = sanitizeName(albumInput.value);
         const artistName = sanitizeName(artistInput.value);
         const titleName = sanitizeName(titleInput.value);
         const baseName = albumName || (artistName ? `${artistName}-${titleName || 'cover'}` : `cover_${Date.now()}`);
-
         const lower = coverUrl.toLowerCase();
-        const ext = /\.png(\?|$)/.test(lower) ? '.PNG'
-                  : /\.jpe?g(\?|$)/.test(lower) ? '.JPG'
-                  : '.JPG';
+        const ext = /\.png(\?|$)/.test(lower) ? '.PNG' : /\.jpe?g(\?|$)/.test(lower) ? '.JPG' : '.JPG';
         const coverKey = `covers/${baseName}${ext}`;
-
         const { response: r2, result: res2 } = await uploadFile(null, coverKey, true, coverUrl);
         if (r2.ok) showMsg(`封面上传成功：${res2.keyUsed}`);
         else showMsg(`封面上传失败：${res2.error || '未知错误'}`);
@@ -198,6 +188,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // 列表：删除
+  async function deleteAsset(keyToDelete, elementToRemove) {
+    if (!confirm(`确定要删除文件:\n${keyToDelete}\n\n该操作不可撤销！`)) return;
+    try {
+      const r = await fetch(`${WORKER_URL}?key=${encodeURIComponent(keyToDelete)}`, { method: 'DELETE' });
+      const j = await r.json();
+      if (r.ok && j.ok) elementToRemove?.remove();
+      else alert('删除失败：' + (j.error || '未知错误'));
+    } catch (e) {
+      alert('网络错误：' + (e.message || e));
+    }
+  }
+
   // 加载文件列表
   async function fetchAndDisplayAssets() {
     assetListDisplay.textContent = '正在加载资产列表...';
@@ -208,11 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || '加载失败');
 
-      let html = `
-        <div style="padding:10px 15px; background:rgba(127,127,127,0.05); border-bottom:1px solid var(--border);">
-          <b>总数:</b> ${data.count} &nbsp; <small>(更新于: ${new Date(data.updatedAt).toLocaleTimeString()})</small>
-        </div>
-      `;
+      let html = `<div class="asset-header"><b>总数:</b> ${data.count}（更新于：${new Date(data.updatedAt).toLocaleTimeString()}）</div>`;
 
       data.assets.forEach((asset, i) => {
         const isAudio = asset.type === 'audio';
@@ -221,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const jpg = album ? `${base}.JPG` : '';
         const png = album ? `${base}.PNG` : '';
         const metaCover = asset.metadata?.coverUrl || '';
-
         const broken = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E";
 
         html += `
@@ -233,10 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="asset-type-label">${asset.metadata?.artist || '未知艺术家'} | ${asset.metadata?.album || '未知专辑'}</div>
             </div>
             <div class="asset-actions">
-              ${isAudio ? `<button id="play-${i}">播放</button>
+              ${isAudio ? `<button class="play-btn" id="play-${i}">播放</button>
                            <audio id="audio-${i}" src="${asset.url}" preload="none"></audio>` : ''}
-              <button id="copy-${i}">复制链接</button>
-              <button id="del-${i}" style="background:#dc3545;color:#fff;">删除</button>
+              <button class="btn-copy" id="copy-${i}">复制链接</button>
+              <button class="btn-del" id="del-${i}">删除</button>
             </div>
           </div>
         `;
@@ -249,18 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const delBtn = document.getElementById(`del-${i}`);
         const copyBtn = document.getElementById(`copy-${i}`);
         const coverImg = document.getElementById(`asset-cover-${i}`);
-        if (delBtn) delBtn.onclick = async () => {
-          if (!confirm(`确定要删除文件:\n${asset.name}\n\n该操作不可撤销！`)) return;
-          const r = await fetch(`${WORKER_URL}?key=${encodeURIComponent(asset.name)}`, { method: 'DELETE' });
-          const j = await r.json();
-          if (r.ok && j.ok) document.getElementById(`asset-${i}`).remove();
-          else alert('删除失败：' + (j.error || '未知错误'));
-        };
+        if (delBtn) delBtn.onclick = () => deleteAsset(asset.name, document.getElementById(`asset-${i}`));
         if (copyBtn) copyBtn.onclick = () => navigator.clipboard.writeText(asset.url);
-
-        if (coverImg) coverImg.addEventListener('click', () => {
-          openLightbox(coverImg.src);
-        });
+        if (coverImg) coverImg.addEventListener('click', () => openLightbox(coverImg.src));
 
         const playBtn = document.getElementById(`play-${i}`);
         const audio = document.getElementById(`audio-${i}`);
