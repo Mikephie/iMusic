@@ -17,7 +17,7 @@ body {
   --muted:#a3a7ad;
   --card:#1a1c1f;
   --border:#2a2d33;
-  --shadow:0 1px 3px rgba(0,0,0,.15); /* 基础阴影略微调整 */
+  --shadow:0 1px 3px rgba(0,0,0,.15); 
   --primary:#5d7cff;
   --primary-rgb: 93, 124, 255; /* 新增：用于rgba颜色计算 */
   --accent:#3aa3ff;
@@ -74,7 +74,7 @@ input[type="file"], input[type="text"]{
   color:var(--fg);
   font-size:1rem; outline:none; transition: border-color .15s, background .15s;
 }
-input[type="file"]:focus, input[type="text"]:{
+input[type="file"]:focus, input[type="text"]:focus{
   border-color: var(--primary); /* 聚焦时使用主色 */
   background: rgba(var(--primary-rgb),.1); /* 聚焦时浅色背景 */
 }
@@ -102,14 +102,37 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   background:#6b7280; color:#fff; font-weight:700; text-align:center;
 }
 
-/* ===== Preview (Optimization) ===== */
-#coverPreviewContainer{ 
-  margin-top:10px; 
-  display: flex; /* 启用Flexbox布局 */
-  gap: 18px; /* 预览图和元数据块的间距 */
+/* ===== Preview & Metadata Layout (New/Optimization) ===== */
+.cover-metadata-flex-wrapper {
+  display: flex;
+  gap: 20px; /* 封面和元数据之间的间距 */
   align-items: flex-start;
+  margin-top: 15px; /* 与上一个输入框的间距 */
 }
-.preview-title{ font-size:.9rem; color:var(--muted); margin:0 0 8px; font-weight: 600; }
+
+.preview-box {
+  flex-shrink: 0; /* 封面区域不被压缩 */
+}
+
+.metadata-fields {
+  flex-grow: 1; /* 元数据区域占据剩余空间 */
+}
+
+.metadata-header {
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--border); /* 虚线分隔，更轻量 */
+  padding-bottom: 5px;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+.preview-title{ 
+  font-size:.9rem; 
+  color:var(--muted); 
+  margin:0 0 8px; 
+  font-weight: 600; 
+}
 .preview-img{
   width:140px; /* 略微增大尺寸 */
   height:140px; 
@@ -118,15 +141,20 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   border: 1px solid var(--border); /* 增加边框 */
   box-shadow: 0 6px 15px rgba(0,0,0,0.25); /* 调整阴影 */
   display:block; 
-  flex-shrink: 0; /* 防止压缩 */
   cursor:zoom-in;
 }
 
-/* 读取到的元数据块样式 */
-.metadata-display { /* 假设元数据区域有这个class */
-  flex-grow: 1; 
-  padding-left: 8px;
+/* 移动端适配：取消封面与元数据的并排布局 */
+@media (max-width: 600px) {
+  .cover-metadata-flex-wrapper {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .preview-box {
+    align-self: center; /* 封面居中 */
+  }
 }
+
 
 /* ===== Output blocks (New/Optimized) ===== */
 /* 为搜索结果和加载信息创建统一的反馈样式 */
@@ -134,10 +162,12 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   padding: 12px 16px;
   border-radius: 12px;
   font-size: 1rem;
-  margin-top: 14px;
+  margin-top: 0px; /* 确保它紧贴着上一个元素（这里是 pre 标签） */
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: pre-wrap; /* 继承 pre 标签的换行属性 */
+  word-break: break-word;
 }
 
 /* 成功样式 */
@@ -155,9 +185,9 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 /* 原有的linkOutput和message保留 */
-#linkOutput{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#linkOutput{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 #musicLink{ color: var(--accent); text-decoration: none; word-break: break-all; }
-#message{ white-space: pre-wrap; word-break: break-word; }
+/* #message 的样式被 .feedback-block 接管 */
 
 
 /* ===== File list (Slight adjustment) ===== */
