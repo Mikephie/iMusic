@@ -87,7 +87,6 @@ input[type="text"]:focus {
 }
 
 button {
-  width: 100%;
   padding: 12px 0;
   margin-top: 10px;
   font-size: 1rem;
@@ -96,6 +95,23 @@ button {
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.15s ease, filter 0.15s ease, background 0.2s;
+}
+
+form button {
+  width: 100%;
+}
+
+/* 特别给“显示所有已上传文件”单独样式 */
+#listAssetsBtn {
+  display: block;
+  margin: 18px auto;
+  width: auto;
+  padding: 10px 28px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: #666;
+  color: #fff;
 }
 
 button:active {
