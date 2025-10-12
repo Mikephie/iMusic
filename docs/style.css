@@ -1,91 +1,94 @@
+/* ========== 全局基础样式 ========== */
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+body {
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 40px 16px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ========== 亮暗模式变量 ========== */
 :root {
-  --bg: #f7f8fa;
-  --fg: #333;
-  --card: #fff;
-  --muted: #666;
-  --border: #ddd;
+  --bg: #f5f5f7;
+  --text: #1d1d1f;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --border: rgba(0, 0, 0, 0.1);
   --primary: #3f51b5;
-  --accent: #1976d2;
-  --success: #43a047;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --accent: #2196f3;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121212;
-    --fg: #e0e0e0;
-    --card: #1e1e1e;
-    --muted: #9aa0a6;
-    --border: #333;
-    --primary: #5c6bc0;
-    --accent: #2196f3;
-    --success: #388e3c;
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --bg: #0d0d0f;
+    --text: #f5f5f7;
+    --card-bg: rgba(35, 35, 38, 0.75);
+    --border: rgba(255, 255, 255, 0.15);
+    --primary: #6579ff;
+    --accent: #009dff;
   }
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--fg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  transition: background 0.3s, color 0.3s;
-}
-
+/* ========== 标题样式 ========== */
 h1 {
-  margin: 25px 0 15px;
-  font-size: 1.6rem;
-  font-weight: 700;
   text-align: center;
+  font-size: clamp(1.4rem, 1rem + 1vw, 2rem);
+  margin-bottom: 24px;
+  font-weight: 800;
 }
 
+/* ========== 表单容器 ========== */
 form {
-  background: var(--card);
-  padding: 18px 20px;
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  width: 90%;
-  max-width: 500px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
+  padding: 20px 24px;
+  width: 92%;
+  max-width: 500px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
 }
 
+/* ========== 表单标签与输入框 ========== */
 label {
   display: block;
-  font-size: 0.95rem;
+  margin-top: 12px;
   font-weight: 600;
-  margin: 10px 0 6px;
+  color: var(--text);
 }
 
 input[type="file"],
 input[type="text"] {
   width: 100%;
   padding: 10px 12px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-color: var(--border);
-  background: transparent;
-  color: var(--fg);
+  margin-top: 8px;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text);
+  transition: border 0.2s ease, background 0.3s ease;
 }
 
 input[type="file"]:focus,
 input[type="text"]:focus {
-  border-color: var(--primary);
-  background: rgba(127, 127, 127, 0.05);
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.9);
 }
 
+/* ========== 按钮样式 ========== */
 button {
   padding: 12px 0;
   margin-top: 10px;
@@ -97,11 +100,27 @@ button {
   transition: transform 0.15s ease, filter 0.15s ease, background 0.2s;
 }
 
-form button {
-  width: 100%;
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
-/* 特别给“显示所有已上传文件”单独样式 */
+button:active {
+  transform: scale(0.97);
+}
+
+/* 主要按钮颜色 */
+#searchCoverBtn {
+  background: var(--primary);
+  color: white;
+}
+
+#submitBtn {
+  background: var(--accent);
+  color: white;
+}
+
+/* “显示所有已上传文件”按钮 */
 #listAssetsBtn {
   display: block;
   margin: 18px auto;
@@ -112,140 +131,116 @@ form button {
   font-size: 0.95rem;
   background: #666;
   color: #fff;
+  border: none;
 }
 
-button:active {
-  transform: scale(0.98);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-accent  { background: var(--accent);  color: #fff; }
-.btn-success { background: var(--success); color: #fff; }
-.btn-secondary { background: #555; color: #fff; }
-
-/* 预览与消息 */
-.hidden { display: none; }
-.preview-wrap { text-align: center; margin-top: 10px; }
+/* ========== 封面预览 ========== */
 .preview-img {
+  display: block;
   width: 120px;
   height: 120px;
-  border-radius: 8px;
+  margin: 12px auto;
+  border-radius: 12px;
   object-fit: cover;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  cursor: zoom-in;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
 }
 
-#linkOutput {
+/* ========== 输出与信息显示区 ========== */
+#linkOutput,
+#message,
+#assetListDisplay {
   margin-top: 15px;
-  text-align: center;
-  width: 90%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 92%;
   max-width: 500px;
-}
-
-#musicLink {
-  display: block;
-  margin: 6px 0;
-  color: var(--accent);
-  text-decoration: none;
+  background: var(--card-bg);
   word-break: break-all;
 }
 
-#message {
-  background: rgba(127,127,127,0.06);
-  width: 90%;
-  max-width: 500px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-top: 15px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-/* 列表 */
-#assetListDisplay.list-panel {
-  width: 90%;
-  max-width: 500px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  margin-bottom: 40px;
-}
-
+/* ========== 文件列表项样式 ========== */
 .asset-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px;
+  gap: 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
 }
 
-.asset-item:last-child { border-bottom: none; }
-
-.asset-cover {
-  width: 60px;
-  height: 60px;
-  border-radius: 6px;
-  object-fit: cover;
-  flex-shrink: 0;
-  cursor: zoom-in;
+.asset-item:last-child {
+  border-bottom: none;
 }
 
-.asset-info { flex: 1; min-width: 0; }
+.asset-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.asset-info {
+  flex: 1;
+  overflow: hidden;
+}
+
 .asset-title {
   font-weight: 700;
   font-size: 0.95rem;
-  overflow: hidden;
+  color: var(--text);
   white-space: nowrap;
   text-overflow: ellipsis;
+  overflow: hidden;
 }
-.asset-type-label { font-size: 0.85rem; color: var(--muted); }
+
+.asset-type-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
 
 .asset-actions {
   display: flex;
-  flex-direction: row;
-  gap: 6px;
-}
-.asset-actions button {
-  padding: 6px 10px;
-  border-radius: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
-/* 移动端 */
-@media (max-width: 600px) {
-  h1 { font-size: 1.4rem; }
-  .asset-cover { width: 50px; height: 50px; }
-  button { font-size: 0.95rem; }
-  .asset-actions { flex-wrap: wrap; justify-content: flex-end; }
+/* ========== 播放按钮等颜色 ========== */
+.play-btn {
+  background-color: #2196f3;
+  color: #fff;
 }
 
-/* Lightbox：隐藏时不拦截点击 */
-.lightbox {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;   /* 关键：隐藏时不挡点击 */
-  transition: opacity 0.2s ease;
-  z-index: 9999;
+button[style*="background-color: #28a745"] {
+  background-color: #28a745 !important;
 }
-.lightbox.show {
-  opacity: 1;
-  pointer-events: auto;   /* 显示时才接管点击 */
+
+button[style*="background-color: #dc3545"] {
+  background-color: #dc3545 !important;
 }
-.lightbox img {
-  max-width: 92vw;
-  max-height: 92vh;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+
+/* ========== 响应式适配 ========== */
+@media (min-width: 768px) {
+  form,
+  #linkOutput,
+  #message,
+  #assetListDisplay,
+  #listAssetsBtn {
+    max-width: 720px;
+  }
+  .preview-img { width: 140px; height: 140px; }
+  .asset-cover { width: 56px; height: 56px; }
+}
+
+@media (min-width: 1200px) {
+  form,
+  #linkOutput,
+  #message,
+  #assetListDisplay,
+  #listAssetsBtn {
+    max-width: 860px;
+  }
+  .preview-img { width: 160px; height: 160px; }
+  .asset-cover { width: 64px; height: 64px; }
 }
