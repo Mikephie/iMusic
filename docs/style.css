@@ -1,120 +1,236 @@
-/* ====================================
-   1. 基础通用样式 (保持不变)
-   ==================================== */
-body { font-family: Arial, sans-serif; padding: 10px; margin: 0 auto; max-width: 900px; }
-h1 { text-align: center; margin-bottom: 20px; }
-#uploadForm { 
-    display: flex; flex-direction: column; max-width: 450px; width: 100%; /* 适配移动端 */
-    gap: 10px; border: 1px solid #007bff; padding: 25px; border-radius: 8px; 
-    margin: 0 auto; /* 居中 */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
-.file-input { padding: 10px; border: 1px dashed #007bff; border-radius: 4px; }
-.metadata-section { padding: 15px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9; }
-input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; margin-top: 5px; }
-button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 15px; transition: background-color 0.2s; }
-#submitBtn, #submitCoverBtn { background-color: #007bff; color: white; }
-#submitBtn:disabled, #submitCoverBtn:disabled { background-color: #aaa; }
-#linkOutput { margin-top: 10px; padding: 10px; border: 1px solid #00aaff; border-radius: 4px; background-color: #e6f7ff; display: none; word-break: break-all; }
-#linkOutput a { color: #007bff; margin-right: 10px; }
-#copyLinkBtn { background-color: #28a745; color: white; padding: 5px 10px; margin-top: 0; }
-#message { margin-top: 20px; white-space: pre-wrap; background-color: #e6f7ff; padding: 15px; border-radius: 4px; border-left: 5px solid #007bff; }
-#assetListDisplay { border-left: 5px solid #ffc107; background-color: #fffbe6; padding: 15px; border: 1px solid #ddd; border-radius: 6px; }
 
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f7f8fa;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
 
-/* ====================================
-   2. 列表结构样式 (Flexbox 布局)
-   ==================================== */
+h1 {
+  margin: 25px 0 15px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111;
+  text-align: center;
+}
+
+form {
+  background: #fff;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  width: 90%;
+  max-width: 500px;
+}
+
+label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 10px 0 5px;
+}
+
+input[type="file"],
+input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="file"]:focus,
+input[type="text"]:focus {
+  border-color: #3f51b5;
+}
+
+button {
+  width: 100%;
+  padding: 12px 0;
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#searchCoverBtn {
+  background-color: #3f51b5;
+  color: #fff;
+}
+
+#submitBtn {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+#copyLinkBtn {
+  background-color: #43a047;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-left: 8px;
+}
+
+#message {
+  background: #fafafa;
+  width: 90%;
+  max-width: 500px;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 15px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#linkOutput {
+  margin-top: 15px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+#musicLink {
+  display: block;
+  margin: 6px 0;
+  color: #1976d2;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+#listAssetsBtn {
+  background: #555;
+  color: white;
+  width: 90%;
+  max-width: 500px;
+  padding: 12px 0;
+  margin: 20px 0;
+  border-radius: 8px;
+}
+
+#assetListDisplay {
+  width: 90%;
+  max-width: 500px;
+  background: #fffefc;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  margin-bottom: 40px;
+}
+
+.preview-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+/* Lightbox 弹出层 */
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* 文件条目样式 */
 .asset-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
 }
-.asset-item:hover { background-color: #f0f8ff; }
-.asset-item:last-child { border-bottom: none; }
 
-/* 封面图片 */
 .asset-cover {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    margin-right: 10px; /* 减小间距 */
-    border-radius: 4px;
-    flex-shrink: 0; /* 不被压缩 */
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  cursor: pointer;
 }
 
-/* 文件信息区 */
 .asset-info {
-    flex-grow: 1; /* 占据中间大部分空间 */
-    min-width: 0; /* 允许文本溢出隐藏 */
+  flex: 1;
+  min-width: 0;
 }
+
 .asset-title {
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; 
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #111;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
+
 .asset-type-label {
-    font-size: 0.85em; /* 增大字体方便阅读 */
-    color: #666;
-    white-space: nowrap;
+  font-size: 0.85rem;
+  color: #666;
 }
 
-/* 播放器和操作按钮区 */
 .asset-actions {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    gap: 8px; /* 减小间距 */
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
 }
-.asset-actions button {
-    padding: 4px 8px;
-    margin-top: 0;
-    font-size: 0.85em;
-}
-.play-btn { background-color: #ff9800; color: white; }
-.hidden-audio { display: none; }
 
-
-/* ====================================
-   3. 移动端 Media Query (屏幕宽度小于 600px)
-   ==================================== */
+/* 移动端适配 */
 @media (max-width: 600px) {
-    /* 调整上传表单宽度，使其占满屏幕 */
-    #uploadForm {
-        max-width: 100%;
-        padding: 15px;
-    }
-    
-    /* 调整列表项目为垂直堆叠，并强制操作按钮换行 */
-    .asset-item {
-        flex-wrap: wrap; /* 允许子元素换行 */
-        align-items: flex-start; /* 顶部对齐 */
-    }
+  h1 { font-size: 1.4rem; }
+  .asset-cover { width: 50px; height: 50px; }
+  button { font-size: 0.95rem; }
 
-    .asset-cover {
-        width: 50px; /* 移动端稍大 */
-        height: 50px;
-        margin-top: 5px;
-        margin-right: 15px;
-    }
+  .asset-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+}
 
-    .asset-info {
-        max-width: calc(100% - 65px); /* 确保信息区不超过一行 */
-        order: 1; /* 保持信息在第一行 */
-    }
-
-    .asset-actions {
-        width: 100%; /* 占据一整行 */
-        justify-content: flex-start; /* 左对齐 */
-        margin-top: 8px;
-        order: 2; /* 移到第二行 */
-        padding-top: 8px;
-        border-top: 1px solid #eee;
-    }
-    
-    .asset-actions button {
-        flex-grow: 1; /* 按钮平均分配空间 */
-        margin-top: 0;
-    }
+/* 深色模式 */
+@media (prefers-color-scheme: dark) {
+  body { background: #121212; color: #e0e0e0; }
+  form, #assetListDisplay { background: #1e1e1e; color: #fff; border: 1px solid #333; }
+  input, #message { background: #2a2a2a; color: #fff; border-color: #444; }
+  button { background-color: #333; color: #fff; }
+  #copyLinkBtn { background-color: #388e3c; }
+  #searchCoverBtn { background-color: #5c6bc0; }
+  #submitBtn { background-color: #2196f3; }
 }
