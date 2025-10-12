@@ -126,10 +126,10 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 .asset-actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .asset-actions .btn{ padding:8px 12px; border-radius:999px; color:#fff; font-weight:700; }
-.asset-actions .play-btn{ background: var(--accent); }
-.asset-actions .copy-btn{ background: var(--success); }
-.asset-actions .cover-btn{ background: #8e62ff; }
-.asset-actions .del-btn{ background: var(--danger); }
+.asset-actions .play-btn{ background: var(--accent); color:#fff; }
+.asset-actions .copy-btn{ background: var(--success); color:#fff; }
+.asset-actions .cover-btn{ background: #8e62ff; color:#fff; }
+.asset-actions .del-btn{ background: var(--danger); color:#fff; }
 
 @media (max-width: 520px){
   .asset-item{ grid-template-columns: 50px 1fr; }
