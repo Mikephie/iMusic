@@ -1,4 +1,4 @@
-// app.js —— 列表含「复制封面链接」按钮的完整版本
+// app.js —— 列表文件名自动去除路径与后缀版（优化显示）
 const WORKER_URL = 'https://music-gateway.mikephiemy.workers.dev';
 const PUBLIC_BASE_URL = 'https://music.mikephie.site';
 
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 加载文件列表（含：复制封面链接按钮）
+  // 加载文件列表
   async function fetchAndDisplayAssets() {
     assetListDisplay.textContent = '正在加载资产列表...';
     assetListDisplay.classList.remove('hidden');
@@ -220,12 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const metaCover = asset.metadata?.coverUrl || '';
         const broken = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E";
 
+        // ⬇ 修改后的标题显示：自动去掉路径和后缀
+        const cleanName = asset.name.split('/').pop().replace(/\.[^.]+$/, '');
+
         html += `
           <div class="asset-item" id="asset-${i}">
             <img class="asset-cover" id="asset-cover-${i}" src="${jpg || metaCover || asset.url}"
                  onerror="this.onerror=null; this.src='${png || metaCover || broken}'" />
             <div class="asset-info">
-              <div class="asset-title">${asset.name}</div>
+              <div class="asset-title">${cleanName}</div>
               <div class="asset-type-label">${asset.metadata?.artist || '未知艺术家'} | ${asset.metadata?.album || '未知专辑'}</div>
             </div>
             <div class="asset-actions">
@@ -241,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       assetListDisplay.innerHTML = html;
 
-      // 绑定每个条目的按钮/封面放大
+      // 绑定按钮事件
       data.assets.forEach((asset, i) => {
         const row = document.getElementById(`asset-${i}`);
         const delBtn = document.getElementById(`del-${i}`);
@@ -252,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (delBtn) delBtn.onclick = () => deleteAsset(asset.name, row);
         if (copyBtn) copyBtn.onclick = () => navigator.clipboard.writeText(asset.url);
 
-        // 复制封面链接 = 复制当前行封面 <img> 的实际 src
+        // 复制封面链接
         if (copyCoverBtn) copyCoverBtn.onclick = () => {
           const url = coverImg?.src || '';
           if (!url) return;
