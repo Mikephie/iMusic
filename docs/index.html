@@ -1,97 +1,1 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>MyMusic 资产上传</title>
-  <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- 动态背景装饰 -->
-  <div class="bg-gradient"></div>
-  <div class="bg-orbs">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-  </div>
-
-  <!-- 头部区域 -->
-  <div class="header-section">
-    <div class="header-icon">🎵</div>
-    <h1>MyMusic 资产上传</h1>
-    <p class="subtitle">专业音乐文件管理平台</p>
-  </div>
-
-  <main class="container" role="main">
-    <!-- 上传表单 -->
-    <form id="uploadForm" class="card">
-      <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
-      <input
-        type="file"
-        id="musicFile"
-        class="file-input"
-        required
-        accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"
-      />
-
-      <!-- 封面和元数据区域 -->
-      <div class="cover-metadata-section">
-        <label for="coverUrlInput">封面图片 URL (可选)</label>
-        <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />
-        <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>
-
-        <!-- 预览和元数据 -->
-        <div id="coverPreviewContainer" class="cover-metadata-flex-wrapper hidden">
-          <!-- 封面预览 -->
-          <div class="preview-box">
-            <div class="preview-title">封面预览</div>
-            <img id="coverPreview" src="" alt="封面预览" class="preview-img" />
-          </div>
-
-          <!-- 元数据字段 -->
-          <div id="metadataDisplay" class="metadata-fields">
-            <div class="metadata-header">读取到的元数据：</div>
-            <label for="titleInput">歌曲名 (Title):</label>
-            <input type="text" id="titleInput" placeholder="自动读取或手动输入" />
-
-            <label for="artistInput">艺术家 (Artist):</label>
-            <input type="text" id="artistInput" placeholder="自动读取或手动输入" />
-
-            <label for="albumInput">专辑 (Album):</label>
-            <input type="text" id="albumInput" placeholder="自动读取或手动输入" />
-          </div>
-        </div>
-      </div>
-      
-      <!-- 提交按钮 -->
-      <button type="submit" id="submitBtn" class="btn-accent" style="margin-top: 20px;">开始上传音乐文件</button>
-      <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>
-    </form>
-
-    <!-- 播放链接输出 -->
-    <div id="linkOutput" class="card hidden">
-      <strong>播放链接:</strong>
-      <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>
-      <button id="copyLinkBtn" class="btn-success">复制链接</button>
-    </div>
-
-    <!-- 反馈消息 -->
-    <pre id="message" class="card feedback-block"></pre> 
-
-    <!-- 文件列表按钮 -->
-    <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>
-    <div id="assetListDisplay" class="card hidden"></div>
-  </main>
-
-  <!-- 灯箱 -->
-  <div id="lightbox" class="lightbox" aria-hidden="true">
-    <img id="lightboxImg" src="" alt="封面大图" />
-  </div>
-
-  <script src="app.js"></script>
-</body>
-</html>
+<!DOCTYPE html> <html lang="zh"> <head>   <meta charset="UTF-8" />   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />   <title>MyMusic 资产上传</title>   <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>   <link rel="stylesheet" href="style.css" />   <link rel="preconnect" href="https://fonts.googleapis.com">   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"> </head> <body>   <!-- 动态背景装饰 -->   <div class="bg-gradient"></div>   <div class="bg-orbs">     <div class="orb orb-1"></div>     <div class="orb orb-2"></div>     <div class="orb orb-3"></div>   </div>    <!-- 头部区域 -->   <div class="header-section">     <div class="header-icon">🎵</div>     <h1>MyMusic 资产上传</h1>     <p class="subtitle">专业音乐文件管理平台</p>   </div>    <main class="container" role="main">     <!-- 上传表单 -->     <form id="uploadForm" class="card">       <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>       <input         type="file"         id="musicFile"         class="file-input"         required         accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"       />        <!-- 封面和元数据区域 -->       <div class="cover-metadata-section">         <label for="coverUrlInput">封面图片 URL (可选)</label>         <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />         <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>          <!-- 预览和元数据 -->         <div id="coverPreviewContainer" class="cover-metadata-flex-wrapper hidden">           <!-- 封面预览 -->           <div class="preview-box">             <div class="preview-title">封面预览</div>             <img id="coverPreview" src="" alt="封面预览" class="preview-img" />           </div>            <!-- 元数据字段 -->           <div id="metadataDisplay" class="metadata-fields">             <div class="metadata-header">读取到的元数据：</div>             <label for="titleInput">歌曲名 (Title):</label>             <input type="text" id="titleInput" placeholder="自动读取或手动输入" />              <label for="artistInput">艺术家 (Artist):</label>             <input type="text" id="artistInput" placeholder="自动读取或手动输入" />              <label for="albumInput">专辑 (Album):</label>             <input type="text" id="albumInput" placeholder="自动读取或手动输入" />           </div>         </div>       </div>              <!-- 提交按钮 -->       <button type="submit" id="submitBtn" class="btn-accent" style="margin-top: 20px;">开始上传音乐文件</button>       <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>     </form>      <!-- 播放链接输出 -->     <div id="linkOutput" class="card hidden">       <strong>播放链接:</strong>       <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>       <button id="copyLinkBtn" class="btn-success">复制链接</button>     </div>      <!-- 反馈消息 -->     <pre id="message" class="card feedback-block"></pre>       <!-- 文件列表按钮 -->     <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>     <div id="assetListDisplay" class="card hidden"></div>          <!-- 🌐 外部跳转链接 -->     <!-- 注意：使用 <a> 标签实现跳转，并应用按钮样式 -->     <a href="https://www.google.com" target="_blank" class="btn-secondary" style="margin-top: 24px; text-decoration: none; padding: 18px 36px; border-color: var(--accent-solid);">       🌐 访问 MyMusic 官方网站     </a>   </main>    <!-- 灯箱 -->   <div id="lightbox" class="lightbox" aria-hidden="true">     <img id="lightboxImg" src="" alt="封面大图" />   </div>    <script src="app.js"></script> </body> </html> 
