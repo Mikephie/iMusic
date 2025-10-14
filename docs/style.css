@@ -322,7 +322,7 @@ button, .btn-secondary {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   text-align: center; /* 确保 a 标签也居中 */
-  display: block; /* 确保 a 标签全宽 */
+  /* 移除 display: block; 使得按钮组可以并排 */
 }
 
 button::before, .btn-secondary::before {
@@ -401,11 +401,29 @@ button:disabled {
   color: var(--fg);
   font-weight: 700;
   text-decoration: none; /* 移除 a 标签下划线 */
+  /* 在按钮组中，让它成为一个灵活的元素 */
+  flex: 1; 
+  /* 确保按钮在没有父级 flex 时默认是块级元素 */
+  display: block; 
 }
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: var(--primary-solid);
+}
+
+/* 🌟 新增：并排按钮组布局 🌟 */
+.btn-group-row {
+  display: flex;
+  gap: 16px; /* 按钮之间的间距 */
+  margin-top: 24px; /* 与上方元素的间距 */
+  margin-bottom: 8px; /* 保持与容器底部或其他元素的适当间距 */
+}
+
+.btn-group-row > .btn-secondary {
+  /* 确保组内的按钮占满等宽空间 */
+  width: 50%;
+  flex-shrink: 0;
 }
 
 /* 9. 封面预览区域 */
@@ -710,6 +728,16 @@ button:disabled {
   .asset-cover {
     width: 80px;
     height: 80px;
+  }
+  
+  /* 移动端并排按钮改为堆叠，更符合小屏幕操作习惯 */
+  .btn-group-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .btn-group-row > .btn-secondary {
+    width: 100%;
   }
 }
 
