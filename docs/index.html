@@ -1,1 +1,931 @@
-<!DOCTYPE html> <html lang="zh"> <head>   <meta charset="UTF-8" />   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />   <title>MyMusic 资产上传</title>   <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>   <link rel="stylesheet" href="style.css" />   <link rel="preconnect" href="https://fonts.googleapis.com">   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"> </head> <body>   <!-- 动态背景装饰 -->   <div class="bg-gradient"></div>   <div class="bg-orbs">     <div class="orb orb-1"></div>     <div class="orb orb-2"></div>     <div class="orb orb-3"></div>   </div>    <!-- 头部区域 -->   <div class="header-section">     <div class="header-icon">🎵</div>     <h1>MyMusic 资产上传</h1>     <p class="subtitle">专业音乐文件管理平台</p>   </div>    <main class="container" role="main">     <!-- 上传表单 -->     <form id="uploadForm" class="card">       <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>       <input         type="file"         id="musicFile"         class="file-input"         required         accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"       />        <!-- 封面和元数据区域 -->       <div class="cover-metadata-section">         <label for="coverUrlInput">封面图片 URL (可选)</label>         <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />         <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>          <!-- 预览和元数据 -->         <div id="coverPreviewContainer" class="cover-metadata-flex-wrapper hidden">           <!-- 封面预览 -->           <div class="preview-box">             <div class="preview-title">封面预览</div>             <img id="coverPreview" src="" alt="封面预览" class="preview-img" />           </div>            <!-- 元数据字段 -->           <div id="metadataDisplay" class="metadata-fields">             <div class="metadata-header">读取到的元数据：</div>             <label for="titleInput">歌曲名 (Title):</label>             <input type="text" id="titleInput" placeholder="自动读取或手动输入" />              <label for="artistInput">艺术家 (Artist):</label>             <input type="text" id="artistInput" placeholder="自动读取或手动输入" />              <label for="albumInput">专辑 (Album):</label>             <input type="text" id="albumInput" placeholder="自动读取或手动输入" />           </div>         </div>       </div>              <!-- 提交按钮 -->       <button type="submit" id="submitBtn" class="btn-accent" style="margin-top: 20px;">开始上传音乐文件</button>       <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>     </form>      <!-- 播放链接输出 -->     <div id="linkOutput" class="card hidden">       <strong>播放链接:</strong>       <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>       <button id="copyLinkBtn" class="btn-success">复制链接</button>     </div>      <!-- 反馈消息 -->     <pre id="message" class="card feedback-block"></pre>       <!-- 文件列表按钮 -->     <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>     <div id="assetListDisplay" class="card hidden"></div>          <!-- 🌐 外部跳转链接 -->     <!-- 注意：使用 <a> 标签实现跳转，并应用按钮样式 -->     <a href="https://www.google.com" target="_blank" class="btn-secondary" style="margin-top: 24px; text-decoration: none; padding: 18px 36px; border-color: var(--accent-solid);">       🌐 访问 MyMusic 官方网站     </a>   </main>    <!-- 灯箱 -->   <div id="lightbox" class="lightbox" aria-hidden="true">     <img id="lightboxImg" src="" alt="封面大图" />   </div>    <script src="app.js"></script> </body> </html> 
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>MyMusic 资产上传</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="header-section">
+    <div class="header-icon">🎵</div>
+    <h1>MyMusic 资产上传</h1>
+    <p class="subtitle">专业音乐文件管理平台</p>
+  </div>
+
+  <main class="container" role="main">
+    <form id="uploadForm" class="card">
+      <label for="musicFile">选择音乐文件 (MP3/FLAC/WAV...)</label>
+      <input
+        type="file"
+        id="musicFile"
+        class="file-input"
+        required
+        accept=".mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.alac,.aiff,.aif,.wma,.amr,.midi,.mid,audio/*"
+      />
+
+      <div class="cover-metadata-section">
+        <label for="coverUrlInput">封面图片 URL (可选)</label>
+        <input type="text" id="coverUrlInput" placeholder="输入关键词或图片链接" />
+        <button type="button" id="searchCoverBtn" class="btn-primary">自动搜索并粘贴封面 URL</button>
+
+        <div id="coverPreviewContainer" class="cover-metadata-flex-wrapper hidden">
+          <div class="preview-box">
+            <div class="preview-title">封面预览</div>
+            <img id="coverPreview" src="" alt="封面预览" class="preview-img" />
+          </div>
+
+          <div id="metadataDisplay" class="metadata-fields">
+            <div class="metadata-header">读取到的元数据：</div>
+            <label for="titleInput">歌曲名 (Title):</label>
+            <input type="text" id="titleInput" placeholder="自动读取或手动输入" />
+
+            <label for="artistInput">艺术家 (Artist):</label>
+            <input type="text" id="artistInput" placeholder="自动读取或手动输入" />
+
+            <label for="albumInput">专辑 (Album):</label>
+            <input type="text" id="albumInput" placeholder="自动读取或手动输入" />
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" id="submitBtn" class="btn-accent" style="margin-top: 20px;">开始上传音乐文件</button>
+      <button type="button" id="submitCoverBtn" disabled class="hidden">上传封面文件</button>
+    </form>
+
+    <div id="linkOutput" class="card hidden">
+      <strong>播放链接:</strong>
+      <a id="musicLink" href="#" target="_blank" rel="noopener noreferrer"></a>
+      <button id="copyLinkBtn" class="btn-success">复制链接</button>
+    </div>
+
+    <pre id="message" class="card feedback-block"></pre> 
+
+    <div class="btn-group-row">
+      <button type="button" id="listAssetsBtn" class="btn-secondary">显示所有已上传文件</button>
+      <div id="assetListDisplay" class="card hidden"></div>
+      
+      <a href="https://mikephie.github.io/TimeTable/" target="_blank" class="btn-secondary">
+        🌐 访问 MYMUSIC 官方网站
+      </a>
+    </div>
+    
+  </main>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <img id="lightboxImg" src="" alt="封面大图" />
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+```eof
+
+---
+
+## 2. CSS 文件更新 (`style.css`)
+
+我添加了 `.btn-group-row` 的样式，使用 **Flexbox** 来实现左右并排，并让按钮自动占据等宽空间。同时，我调整了 `.btn-secondary` 样式以适应并排布局。
+
+```css:MyMusic Neon Style:style.css
+/* ===== 🌌 全新视觉冲击设计 (优化后) 🌌 ===== */
+
+/* 1. 全局重置与基础设置 */
+* { 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent; 
+  margin: 0;
+  padding: 0;
+}
+
+html, body { 
+  margin: 0; 
+  padding: 0; 
+  /* 仅允许 y 轴滚动，防止布局被横向破坏 */
+  overflow-x: hidden;
+  /* 启用平滑滚动，仅对支持的浏览器有效 */
+  scroll-behavior: smooth; 
+}
+
+body {
+  /* 优化字体堆栈，增加 SF Pro Rounded 作为备选 */
+  font-family: 'Inter', "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  /* 移除 min-height: 100vh; 改为更稳定的布局 */
+  min-height: 100%;
+  position: relative;
+  /* 保持底部留白，优化为更精确的单位 */
+  padding-bottom: 50px; 
+  /* 优化抗锯齿 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. 主题变量 (颜色和尺寸) */
+:root {
+  /* 深色主题 - 高对比度渐变配色 (优化调整颜色深度) */
+  --bg: #050014; /* 更深的背景，突出前景 */
+  --fg: #eef1f9; /* 略微柔和的白色，避免过度刺眼 */
+  --muted: #a0a0c0; /* 柔和辅助色 */
+  --card: rgba(25, 20, 40, 0.75); /* 卡片背景，略微增加饱和度 */
+  --border: rgba(255, 255, 255, 0.12); /* 边框更清晰 */
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.5); /* 阴影更深更广 */
+  
+  /* 主色：霓虹紫到青的渐变 (修改为更具未来感的青色) */
+  --primary: linear-gradient(135deg, #7a42f5 0%, #00d4ff 100%);
+  --primary-solid: #7a42f5;
+  --primary-rgb: 122, 66, 245; /* 对应 #7a42f5 */
+  
+  /* 强调色：霓虹红到橙的渐变 (增加视觉温暖和对比) */
+  --accent: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+  --accent-solid: #ff7e5f;
+  --accent-rgb: 255, 126, 95; /* 对应 #ff7e5f */
+  
+  /* 成功/警告色 (统一渐变风格) */
+  --success: linear-gradient(135deg, #16a085 0%, #2ecc71 100%);
+  --success-solid: #16a085;
+  --danger: #e74c3c; /* 纯色危险色，更醒目 */
+  
+  --radius: 18px; /* 略微增大圆角，更柔和 */
+}
+
+/* 浅色主题调整 (增加对比度，避免浅色过于平淡) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #ffffff; 
+    --fg: #1c2a4f; /* 深蓝灰，增加阅读舒适度 */
+    --muted: #5e6b8c;
+    --card: rgba(255, 255, 255, 0.95); /* 更不透明 */
+    --border: rgba(0, 0, 0, 0.1);
+    --shadow: 0 6px 30px rgba(0, 0, 0, 0.1); /* 柔和阴影 */
+  }
+}
+
+.hidden { 
+  display: none !important; 
+}
+
+/* 3. 动态背景 (优化动画和模糊效果) */
+.bg-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* 调整渐变颜色以配合新的 --bg */
+  background: linear-gradient(135deg, 
+    #050014 0%, 
+    #140728 25%, 
+    #0c1a3b 50%, 
+    #140728 75%, 
+    #050014 100%
+  );
+  z-index: -2;
+  /* 动画时长增加，使变化更微妙 */
+  animation: gradientShift 20s ease-in-out infinite alternate;
+}
+
+@keyframes gradientShift {
+  0% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  100% { 
+    opacity: 0.9; 
+    transform: scale(1.05); /* 增加微小缩放，更有深度 */
+  }
+}
+
+.bg-orbs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  /* 增加模糊度，更像光晕 */
+  filter: blur(120px); 
+  opacity: 0.3; /* 降低整体透明度，更微妙 */
+  animation: float 25s ease-in-out infinite; /* 延长动画时间 */
+}
+
+/* 优化光球颜色以匹配新的主色/强调色 */
+.orb-1 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, var(--primary-solid), transparent);
+  top: -15%;
+  left: -15%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, var(--accent-solid), transparent);
+  bottom: -15%;
+  right: -10%;
+  animation-delay: 8s; /* 调整延迟 */
+}
+
+.orb-3 {
+  width: 400px;
+  height: 400px;
+  /* 新增一个辅助光球颜色，增加层次 */
+  background: radial-gradient(circle, #00d4ff, transparent); 
+  top: 40%;
+  left: 60%;
+  animation-delay: 16s; /* 调整延迟 */
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33% { transform: translate(40px, -40px) scale(1.1) rotate(5deg); }
+  66% { transform: translate(-30px, 30px) scale(0.9) rotate(-5deg); }
+}
+
+/* 4. 头部区域 */
+.header-section {
+  text-align: center;
+  padding: 80px 20px 60px; /* 增加上下空间 */
+  position: relative;
+}
+
+.header-icon {
+  font-size: 4.5rem; /* 略微增大 */
+  margin-bottom: 25px;
+  /* 动画优化为更柔和的 pulse */
+  animation: pulse 3s ease-in-out infinite alternate; 
+  display: inline-block;
+  /* 使用 var() 保持颜色一致性 */
+  filter: drop-shadow(0 0 25px rgba(var(--primary-rgb), 0.8)); 
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.05); opacity: 0.8; }
+}
+
+h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem); /* 标题更大 */
+  font-weight: 900;
+  /* 标题渐变颜色优化，增加白色比例 */
+  background: linear-gradient(135deg, #ffffff 30%, var(--muted) 100%); 
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  letter-spacing: -0.03em; /* 字母间距更紧凑，更有力量感 */
+}
+
+.subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem); /* 副标题略微增大 */
+  color: var(--muted);
+  font-weight: 500;
+  /* 增加柔和阴影，在深色背景上更易读 */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); 
+}
+
+/* 5. 容器 */
+.container {
+  width: min(1100px, 92vw); /* 容器宽度略微增加 */
+  margin: 0 auto 50px;
+  display: grid;
+  gap: 32px; /* 间距增大 */
+  position: relative;
+  z-index: 1;
+}
+
+/* 6. 毛玻璃卡片 (Glassmorphism) */
+.card {
+  background: var(--card);
+  backdrop-filter: blur(25px) saturate(170%); /* 增加模糊度 */
+  -webkit-backdrop-filter: blur(25px) saturate(170%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 36px; /* 增加内边距 */
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 优化过渡曲线 */
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px; /* 边框线略微增粗 */
+  background: var(--primary);
+  opacity: 0;
+  /* 增加一个 transform 动效 */
+  transform: translateY(-100%); 
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.01); /* 提升效果更明显 */
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.6), 0 0 15px rgba(var(--primary-rgb), 0.5);
+}
+
+/* 7. 表单样式 */
+label {
+  display: block;
+  margin: 24px 0 10px;
+  font-weight: 700;
+  color: var(--fg);
+  font-size: 0.9rem; /* 略微缩小，更精致 */
+  letter-spacing: 0.08em; /* 增加字母间距 */
+  text-transform: uppercase;
+}
+
+label:first-of-type {
+  margin-top: 0;
+}
+
+input[type="file"],
+input[type="text"] {
+  width: 100%;
+  padding: 18px 22px; /* 增加内边距 */
+  border-radius: 14px; /* 略微增大圆角 */
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.08); /* 背景略深 */
+  color: var(--fg);
+  font-size: 1.05rem; /* 字体略微增大 */
+  font-family: inherit;
+  outline: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* 优化过渡曲线 */
+}
+
+input[type="file"]::file-selector-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 24px; /* 按钮略大 */
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-right: 16px;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+  box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
+}
+
+input[type="file"]::file-selector-button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(var(--primary-rgb), 0.5);
+}
+
+input[type="file"]:focus,
+input[type="text"]:focus {
+  border-color: var(--primary-solid);
+  background: rgba(var(--primary-rgb), 0.15); /* 焦点背景更明显 */
+  box-shadow: 0 0 0 6px rgba(var(--primary-rgb), 0.2); /* 光晕更大 */
+}
+
+/* 8. 按钮统一样式 (增加 3D 按压感) */
+button, .btn-secondary {
+  /* 统一按钮和 <a>.btn-secondary 的基础样式 */
+  padding: 18px 36px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 800; /* 加粗字体 */
+  font-size: 1.05rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.215, 0.61, 0.355, 1);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center; /* 确保 a 标签也居中 */
+  /* 移除 display: block; 使得按钮组可以并排 */
+}
+
+button::before, .btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4); /* 涟漪效果更亮 */
+  transform: translate(-50%, -50%);
+  transition: width 0.7s ease-out, height 0.7s ease-out; /* 涟漪扩散更慢 */
+  z-index: 1;
+  pointer-events: none; /* 确保不影响点击 */
+}
+
+button:hover::before, .btn-secondary:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+button:active, .btn-secondary:active {
+  transform: scale(0.95) translateY(1px); /* 模拟按压效果 */
+}
+
+button:disabled {
+  opacity: 0.4; /* 禁用状态更灰暗 */
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  width: 100%;
+  box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.5);
+  margin-top: 20px;
+  position: relative;
+  z-index: 0;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 10px 30px rgba(var(--primary-rgb), 0.8);
+  transform: translateY(-3px);
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--bg); /* 强调按钮颜色改为深色，增加对比 */
+  width: 100%;
+  margin-top: 28px;
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.5);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.btn-accent:hover {
+  box-shadow: 0 10px 30px rgba(var(--accent-rgb), 0.8);
+  transform: translateY(-3px);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 0.9rem;
+}
+
+.btn-secondary {
+  /* 覆盖基础样式中的 border-none */
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--fg);
+  font-weight: 700;
+  text-decoration: none; /* 移除 a 标签下划线 */
+  /* 在按钮组中，让它成为一个灵活的元素 */
+  flex: 1; 
+  /* 移除之前强制的全宽样式 */
+  display: block; 
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--primary-solid);
+}
+
+/* 🌟 新增：并排按钮组布局 🌟 */
+.btn-group-row {
+  display: flex;
+  gap: 16px; /* 按钮之间的间距 */
+  margin-top: 24px; /* 与上方元素的间距 */
+  margin-bottom: 8px; /* 保持与容器底部或其他元素的适当间距 */
+}
+
+.btn-group-row > .btn-secondary {
+  /* 确保组内的按钮占满等宽空间 */
+  width: 50%;
+  flex-shrink: 0;
+}
+
+/* 9. 封面预览区域 */
+.cover-metadata-section {
+  margin-top: 32px;
+}
+
+.cover-metadata-flex-wrapper {
+  /* 优化为更灵活的 grid */
+  display: grid;
+  grid-template-columns: minmax(180px, 250px) 1fr; 
+  gap: 40px;
+  align-items: start;
+  margin-top: 28px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.05); /* 预览区背景更明显 */
+  border-radius: 16px;
+  border: 1px solid var(--border);
+}
+
+.preview-box {
+  position: relative;
+}
+
+.preview-title {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.preview-img {
+  width: 100%; /* 适应容器宽度 */
+  max-width: 250px;
+  aspect-ratio: 1/1; /* 确保封面是正方形 */
+  border-radius: 14px;
+  object-fit: cover;
+  border: 3px solid rgba(var(--primary-rgb), 0.5); /* 边框更厚，带主色光晕 */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  display: block;
+  cursor: zoom-in;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(var(--primary-rgb), 0.7);
+}
+
+.metadata-fields {
+  display: grid;
+  gap: 20px;
+}
+
+.metadata-header {
+  font-weight: 900;
+  margin-bottom: 18px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(var(--primary-rgb), 0.2); /* 边框线使用主色半透明 */
+  color: var(--fg);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metadata-fields label {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.metadata-fields input {
+  margin-top: 0;
+  padding: 12px 16px; /* 减小输入框高度 */
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .cover-metadata-flex-wrapper {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 24px;
+  }
+  
+  .preview-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .preview-img {
+    width: 220px;
+    height: 220px;
+    max-width: 220px;
+  }
+}
+
+/* 10. 反馈消息 */
+.feedback-block {
+  padding: 24px 28px; /* 增加内边距 */
+  border-radius: 14px;
+  font-size: 1rem;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-weight: 700;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.feedback-success {
+  background: rgba(22, 160, 133, 0.15); /* 使用 success-solid 对应的 rgb */
+  border-color: var(--success-solid);
+  color: #2ecc71; /* 使用渐变中的亮色 */
+}
+
+.feedback-error {
+  background: rgba(231, 76, 60, 0.15); /* 使用 danger 对应的 rgb */
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* 11. 链接输出 */
+#linkOutput {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 28px;
+}
+
+#musicLink {
+  color: var(--accent-solid);
+  text-decoration: none;
+  word-break: break-all;
+  font-size: 1.05rem;
+  font-weight: 600;
+  flex: 1;
+  padding: 15px;
+  background: rgba(255, 126, 95, 0.1); /* 使用 accent-solid 对应的 rgb */
+  border-radius: 10px;
+  border: 1px solid rgba(255, 126, 95, 0.3);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+#musicLink:hover {
+  background: rgba(255, 126, 95, 0.2);
+  color: #feb47b; /* 链接 hover 颜色改为渐变中的亮色 */
+  text-decoration: none;
+}
+
+/* 12. 文件列表 */
+#assetListDisplay {
+  padding: 0;
+  overflow: hidden;
+}
+
+.asset-header {
+  padding: 20px 28px;
+  border-bottom: 2px solid var(--border);
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.asset-item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto; /* 封面略微增大 */
+  align-items: center;
+  gap: 24px;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s ease;
+}
+
+.asset-item:hover {
+  background: rgba(var(--primary-rgb), 0.05); /* hover 效果使用主色 */
+}
+
+.asset-item:last-child {
+  border-bottom: none;
+}
+
+.asset-cover {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: zoom-in;
+  border: 2px solid var(--border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.asset-cover:hover {
+  transform: scale(1.05) rotate(-1deg); /* 增加微小旋转 */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(var(--primary-rgb), 0.5);
+}
+
+.asset-info {
+  min-width: 0;
+}
+
+.asset-title {
+  font-weight: 800;
+  color: var(--fg);
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+  /* 确保标题在移动端能优雅截断 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-type-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.asset-actions .btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+.asset-actions .play-btn {
+  background: var(--accent);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.4);
+  color: var(--bg); /* 调整文字颜色 */
+}
+
+.asset-actions .play-btn:hover {
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.6);
+  transform: translateY(-1px);
+}
+
+.asset-actions .copy-btn {
+  background: var(--success);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4); /* 使用 success 渐变中的 rgb */
+}
+
+.asset-actions .copy-btn:hover {
+  box-shadow: 0 6px 16px rgba(46, 204, 113, 0.6);
+}
+
+.asset-actions .cover-btn {
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.4);
+}
+
+.asset-actions .cover-btn:hover {
+  box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.6);
+}
+
+.asset-actions .del-btn {
+  background: var(--danger);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+.asset-actions .del-btn:hover {
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.6);
+}
+
+@media (max-width: 640px) {
+  .asset-item {
+    grid-template-columns: 80px 1fr;
+    gap: 18px;
+    padding: 16px 20px;
+  }
+  
+  .asset-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 6px;
+  }
+  
+  .asset-cover {
+    width: 80px;
+    height: 80px;
+  }
+  
+  /* 移动端并排按钮改为堆叠，更符合小屏幕操作习惯 */
+  .btn-group-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .btn-group-row > .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* 13. 灯箱效果 */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.98); /* 背景更黑 */
+  backdrop-filter: blur(15px) brightness(0.8); /* 增加亮度和模糊度 */
+  -webkit-backdrop-filter: blur(15px) brightness(0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 9999;
+  cursor: zoom-out;
+}
+
+.lightbox.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox img {
+  max-width: 95vw; /* 略微增大图片显示尺寸 */
+  max-height: 95vh;
+  border-radius: 20px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 30px rgba(var(--primary-rgb), 0.7); /* 增加霓虹阴影 */
+  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 3px solid white; /* 图片边框 */
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 14. 移动端优化 */
+@media (max-width: 640px) {
+  .header-section {
+    padding: 50px 20px 40px;
+  }
+  
+  .header-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .card {
+    padding: 30px 24px;
+  }
+  
+  button, .btn-secondary {
+    padding: 15px 28px;
+    font-size: 1rem;
+  }
+  
+  .container {
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+}
+
+/* 15. 滚动条美化 */
+::-webkit-scrollbar {
+  width: 10px; /* 略微变窄 */
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-solid); /* 使用纯色，与渐变拇指更好区分 */
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-solid); /* 调整 hover 颜色 */
+}
+```eof
