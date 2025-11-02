@@ -298,3 +298,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   listAssetsBtn.addEventListener('click', fetchAndDisplayAssets);
 });
+
+// ==========================================================
+// 🚀 PWA 核心：Service Worker 注册
+// ==========================================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // 使用相对路径 'sw.js'，它会被 <base href="/TimeTable/"> 解析为 /TimeTable/sw.js
+        navigator.serviceWorker.register('sw.js') 
+            .then(registration => {
+                console.log('Service Worker 注册成功，作用域：', registration.scope);
+            })
+            .catch(error => {
+                console.error('Service Worker 注册失败:', error);
+            });
+    });
+}
+// ==========================================================
