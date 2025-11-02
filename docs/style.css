@@ -76,6 +76,16 @@ body {
   display: none !important; 
 }
 
+/* 统一的图标基础样式，控制 web-icon.png 的显示尺寸 */
+.icon {
+  width: 28px;
+  height: 28px;
+  vertical-align: middle; 
+  margin-right: 6px; 
+  /* 如果 web-icon.png 是一个高分辨率文件，可以加上： */
+  /* object-fit: cover; */
+}
+
 /* 3. 动态背景 (优化动画和模糊效果) */
 .bg-gradient {
   position: fixed;
